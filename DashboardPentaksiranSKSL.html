@@ -1,0 +1,2637 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Analisis Pentaksiran & Peperiksaan 2026 — SK Sungai Lada, WP Labuan</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .tab-btn.active {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .card-shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- TOP EXECUTIVE HEADER -->
+  <header class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white shadow-lg border-b border-blue-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-4">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-600/20 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-inner">
+            <i data-lucide="graduation-cap" class="w-7 h-7 sm:w-8 sm:h-8 text-blue-300"></i>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
+                Portal Eksekutif Kurikulum 2026
+              </span>
+              <span class="px-2.5 py-0.5 text-[11px] font-medium rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+                WP Labuan
+              </span>
+            </div>
+            <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 text-white">
+              SEKOLAH KEBANGSAAN SUNGAI LADA
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+              Dashboard Analisis Pentaksiran Bilik Darjah (PBD), UASA &amp; MPT4 — Sesi Akademik 2026
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 no-print">
+          <button onclick="exportCurrentCSV()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-medium border border-white/15 transition">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Eksport CSV</span>
+          </button>
+          <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold shadow-sm transition">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Cetak Laporan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN NAVIGATION TABS -->
+      <nav class="mt-6 flex flex-wrap gap-2 no-print" aria-label="Tab Utama">
+        <button id="tab-pbd-akhir" onclick="switchTab('pbd-akhir')" class="tab-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white/10 text-slate-200 hover:bg-white/15">
+          <i data-lucide="award" class="w-4 h-4"></i>
+          <span>PBD Akhir Tahun 2026</span>
+        </button>
+        <button id="tab-pbd-tengah" onclick="switchTab('pbd-tengah')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white/10 text-slate-200 hover:bg-white/15">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>PBD Pertengahan Tahun 2026</span>
+        </button>
+        <button id="tab-uasa" onclick="switchTab('uasa')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white/10 text-slate-200 hover:bg-white/15">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>UASA 2026 (Tahap 1 &amp; Tahap 2)</span>
+        </button>
+        <button id="tab-mpt4" onclick="switchTab('mpt4')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white/10 text-slate-200 hover:bg-white/15">
+          <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          <span>MPT4 2026 (Tahun 4)</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast-box" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 text-sm">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toast-msg">Berjaya dieksport!</span>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ========================================================= -->
+    <!-- SECTION 1: PBD AKHIR TAHUN 2026                           -->
+    <!-- ========================================================= -->
+    <section id="sec-pbd-akhir" class="space-y-6">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm no-print">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-slate-800 font-semibold text-sm">
+            <i data-lucide="filter" class="w-4 h-4 text-blue-700"></i>
+            <span>Penapis Analisis PBD Akhir Tahun 2026</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tahun / Aliran</label>
+              <select id="filter-akhir-tahun" onchange="renderPBDAkhir()" class="w-full sm:w-44 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <option value="ALL">Semua Tahun (T1 - T6)</option>
+                <option value="TAHUN SATU">Tahun Satu</option>
+                <option value="TAHUN DUA">Tahun Dua</option>
+                <option value="TAHUN TIGA">Tahun Tiga</option>
+                <option value="TAHUN EMPAT">Tahun Empat</option>
+                <option value="TAHUN LIMA">Tahun Lima</option>
+                <option value="TAHUN ENAM">Tahun Enam</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Mata Pelajaran</label>
+              <select id="filter-akhir-subjek" onchange="renderPBDAkhir()" class="w-full sm:w-56 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <option value="ALL">Semua Mata Pelajaran</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="resetPBDAkhirFilter()" class="w-full sm:w-auto px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition">
+                Set Semula
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- KPI 1: Jumlah Penilaian / Calon -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Jumlah Penilaian Subjek</span>
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-akhir-total" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0</span>
+            <span class="text-xs text-slate-500 font-medium">rekod murid</span>
+          </div>
+          <p id="kpi-akhir-sub" class="text-xs text-slate-500 mt-1.5">Merangkumi 12 mata pelajaran</p>
+        </div>
+
+        <!-- KPI 2: HIGHLIGHTED TP1 & TP2 (INTERVENSI) -->
+        <div class="bg-gradient-to-br from-rose-50 via-white to-amber-50 rounded-2xl p-5 border-2 border-rose-300 shadow-sm card-shadow relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+              Murid TP1 &amp; TP2 (Intervensi)
+            </span>
+            <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2.5">
+            <span id="kpi-akhir-tp12-pct" class="text-2xl sm:text-3xl font-extrabold text-rose-700">0.00%</span>
+            <span id="kpi-akhir-tp12-count" class="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white">0 murid</span>
+          </div>
+          <p id="kpi-akhir-tp12-detail" class="text-xs text-rose-700/90 font-medium mt-1.5">TP1: 0 | TP2: 0 (Belum Menguasai)</p>
+        </div>
+
+        <!-- KPI 3: Menguasai Tahap Minimum (TP3 - TP6) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Menguasai (TP3 - TP6)</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="check-circle" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-akhir-mtm-pct" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">0.00%</span>
+            <span id="kpi-akhir-mtm-count" class="text-xs font-semibold text-emerald-600">(0)</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Mencapai Tahap Minimum (MTM)</p>
+        </div>
+
+        <!-- KPI 4: Cemerlang (TP5 - TP6) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Cemerlang (TP5 - TP6)</span>
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <i data-lucide="star" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-akhir-tp56-pct" class="text-2xl sm:text-3xl font-extrabold text-indigo-700">0.00%</span>
+            <span id="kpi-akhir-tp56-count" class="text-xs font-semibold text-indigo-600">(0)</span>
+          </div>
+          <p id="kpi-akhir-tp56-detail" class="text-xs text-slate-500 mt-1.5">TP5: 0 | TP6: 0</p>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Chart 1: Fokus Peratusan TP1 & TP2 Mengikut Subjek -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="flex items-start justify-between gap-2 mb-4">
+            <div>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-100 text-rose-800 mb-1">
+                FOKUS INTERVENSI (TP1 + TP2)
+              </span>
+              <h3 class="text-base font-bold text-slate-900">Peratusan Murid TP1 &amp; TP2 Mengikut Subjek</h3>
+              <p class="text-xs text-slate-500">Susunan tertinggi hingga terendah bagi tindakan pemulihan</p>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-akhir-tp12"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Taburan TP1 - TP6 -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Taburan Tahap Penguasaan (TP1 – TP6)</h3>
+              <p id="chart-akhir-dist-subtitle" class="text-xs text-slate-500">Peratusan penguasaan mengikut mata pelajaran</p>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium">PBD Akhir 2026</span>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-akhir-dist"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table PBD Akhir Tahun -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm card-shadow overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Jadual Terperinci PBD Akhir Tahun 2026</h3>
+            <p class="text-xs text-slate-500">Lengkap dengan kiraan bilangan dan peratusan gabungan <strong class="text-rose-700">TP1 + TP2</strong> serta <strong class="text-emerald-700">MTM (TP3–TP6)</strong></p>
+          </div>
+          <div class="flex items-center gap-2 no-print">
+            <label class="text-xs text-slate-500 font-medium">Susun:</label>
+            <select id="sort-akhir-table" onchange="renderPBDAkhir()" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+              <option value="default">Susunan Asal (Subjek &amp; Tahun)</option>
+              <option value="tp12_desc">% TP1+TP2 (Tertinggi ke Terendah)</option>
+              <option value="mtm_desc">% MTM (Tertinggi ke Terendah)</option>
+              <option value="tp56_desc">% TP5+TP6 (Tertinggi ke Terendah)</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white uppercase tracking-wider text-[11px]">
+                <th class="py-3 px-3.5 font-semibold">Mata Pelajaran</th>
+                <th class="py-3 px-3 font-semibold">Tahun</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP1</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP2</th>
+                <th class="py-3 px-2.5 text-center font-bold bg-rose-900/90 text-rose-100">Bil (TP1+TP2)</th>
+                <th class="py-3 px-3 text-center font-bold bg-rose-800 text-white">% (TP1+TP2)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP3</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP4</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP5</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP6</th>
+                <th class="py-3 px-3 text-center font-bold bg-emerald-900/90 text-emerald-100">% MTM (TP3-6)</th>
+                <th class="py-3 px-3 text-center font-semibold">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pbd-akhir" class="divide-y divide-slate-200 text-slate-700"></tbody>
+            <tfoot id="tfoot-pbd-akhir" class="bg-slate-100 font-bold text-slate-900 border-t-2 border-slate-300"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 2: PBD PERTENGAHAN TAHUN 2026                     -->
+    <!-- ========================================================= -->
+    <section id="sec-pbd-tengah" class="hidden space-y-6">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm no-print">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-slate-800 font-semibold text-sm">
+            <i data-lucide="filter" class="w-4 h-4 text-blue-700"></i>
+            <span>Penapis Analisis PBD Pertengahan Tahun 2026</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tahun / Aliran</label>
+              <select id="filter-tengah-tahun" onchange="renderPBDTengah()" class="w-full sm:w-44 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800">
+                <option value="ALL">Semua Tahun (T1 - T6)</option>
+                <option value="TAHUN SATU">Tahun Satu</option>
+                <option value="TAHUN DUA">Tahun Dua</option>
+                <option value="TAHUN TIGA">Tahun Tiga</option>
+                <option value="TAHUN EMPAT">Tahun Empat</option>
+                <option value="TAHUN LIMA">Tahun Lima</option>
+                <option value="TAHUN ENAM">Tahun Enam</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Mata Pelajaran</label>
+              <select id="filter-tengah-subjek" onchange="renderPBDTengah()" class="w-full sm:w-56 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800">
+                <option value="ALL">Semua Mata Pelajaran</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="resetPBDTengahFilter()" class="w-full sm:w-auto px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition">
+                Set Semula
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Jumlah Penilaian Subjek</span>
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-tengah-total" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0</span>
+            <span class="text-xs text-slate-500 font-medium">rekod murid</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">PBD Pertengahan Tahun 2026</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-amber-200 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Murid TP1 &amp; TP2</span>
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+              <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-tengah-tp12-pct" class="text-2xl sm:text-3xl font-extrabold text-amber-700">0.00%</span>
+            <span id="kpi-tengah-tp12-count" class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">0</span>
+          </div>
+          <p id="kpi-tengah-tp12-detail" class="text-xs text-slate-500 mt-1.5">TP1: 0 | TP2: 0</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Menguasai (TP3 - TP6)</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="check-circle" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-tengah-mtm-pct" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">0.00%</span>
+            <span id="kpi-tengah-mtm-count" class="text-xs font-semibold text-emerald-600">(0)</span>
+          </div>
+          <p id="kpi-tengah-lonjakan" class="text-xs text-slate-500 mt-1.5">Perbandingan ke Akhir Tahun tersedia</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Cemerlang (TP5 - TP6)</span>
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-tengah-tp56-pct" class="text-2xl sm:text-3xl font-extrabold text-indigo-700">0.00%</span>
+            <span id="kpi-tengah-tp56-count" class="text-xs font-semibold text-indigo-600">(0)</span>
+          </div>
+          <p id="kpi-tengah-tp56-detail" class="text-xs text-slate-500 mt-1.5">TP5: 0 | TP6: 0</p>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="mb-4">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 text-blue-800 mb-1">
+              ANALISIS IMPAK INTERVENSI
+            </span>
+            <h3 class="text-base font-bold text-slate-900">Perbandingan % TP1 &amp; TP2 (Pertengahan vs Akhir Tahun)</h3>
+            <p class="text-xs text-slate-500">Penurunan bar merah menunjukkan kejayaan program pemulihan</p>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-tengah-compare"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Taburan Tahap Penguasaan PBD Pertengahan Tahun</h3>
+            <p class="text-xs text-slate-500">Komposisi TP1 hingga TP6 mengikut subjek</p>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-tengah-dist"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table PBD Pertengahan Tahun -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm card-shadow overflow-hidden">
+        <div class="p-5 border-b border-slate-200">
+          <h3 class="text-base font-bold text-slate-900">Jadual Terperinci PBD Pertengahan Tahun 2026</h3>
+          <p class="text-xs text-slate-500">Data rasmi PBD Pertengahan Tahun berserta perbandingan perubahan % TP1+TP2 ke PBD Akhir Tahun</p>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white uppercase tracking-wider text-[11px]">
+                <th class="py-3 px-3.5 font-semibold">Mata Pelajaran</th>
+                <th class="py-3 px-3 font-semibold">Tahun</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP1</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP2</th>
+                <th class="py-3 px-2.5 text-center font-semibold bg-amber-900/90 text-amber-100">Bil (TP1+2)</th>
+                <th class="py-3 px-3 text-center font-semibold bg-amber-800 text-white">% (TP1+2)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP3</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP4</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP5</th>
+                <th class="py-3 px-2.5 text-center font-semibold">TP6</th>
+                <th class="py-3 px-3 text-center font-semibold bg-emerald-900/90 text-emerald-100">% MTM</th>
+                <th class="py-3 px-3 text-center font-semibold">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pbd-tengah" class="divide-y divide-slate-200 text-slate-700"></tbody>
+            <tfoot id="tfoot-pbd-tengah" class="bg-slate-100 font-bold text-slate-900 border-t-2 border-slate-300"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 3: UASA 2026 (GABUNGAN TAHAP 1 & TAHAP 2)         -->
+    <!-- ========================================================= -->
+    <section id="sec-uasa" class="hidden space-y-6">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm no-print">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-slate-800 font-semibold text-sm">
+            <i data-lucide="layers" class="w-4 h-4 text-blue-700"></i>
+            <span>Penapis UASA 2026 (Gabungan Tahap 1 &amp; Tahap 2)</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full lg:w-auto">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tahap Aliran</label>
+              <select id="filter-uasa-tahap" onchange="onUasaTahapChange()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800">
+                <option value="ALL">Semua Tahap (T1 - T6)</option>
+                <option value="TAHAP 1">Tahap 1 (Tahun 1 - 3)</option>
+                <option value="TAHAP 2">Tahap 2 (Tahun 4 - 6)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tahun</label>
+              <select id="filter-uasa-tahun" onchange="onUasaTahunChange()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800">
+                <option value="ALL">Semua Tahun</option>
+                <option value="TAHUN 1">Tahun 1</option>
+                <option value="TAHUN 2">Tahun 2</option>
+                <option value="TAHUN 3">Tahun 3</option>
+                <option value="TAHUN 4">Tahun 4</option>
+                <option value="TAHUN 5">Tahun 5</option>
+                <option value="TAHUN 6">Tahun 6</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Kelas (Rekod Murid)</label>
+              <select id="filter-uasa-kelas" onchange="renderUASA()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800">
+                <option value="ALL">Semua Kelas (13 Kelas)</option>
+                <option value="1 BESTARI">1 Bestari</option>
+                <option value="1 CEMERLANG">1 Cemerlang</option>
+                <option value="2 BESTARI">2 Bestari</option>
+                <option value="2 CEMERLANG">2 Cemerlang</option>
+                <option value="3 BESTARI">3 Bestari</option>
+                <option value="3 CEMERLANG">3 Cemerlang</option>
+                <option value="4 BESTARI">4 Bestari</option>
+                <option value="4 CEMERLANG">4 Cemerlang</option>
+                <option value="5 BESTARI">5 Bestari</option>
+                <option value="5 CEMERLANG">5 Cemerlang</option>
+                <option value="6 AMANAH">6 Amanah</option>
+                <option value="6 BESTARI">6 Bestari</option>
+                <option value="6 CEMERLANG">6 Cemerlang</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Mata Pelajaran</label>
+              <select id="filter-uasa-subjek" onchange="renderUASA()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800">
+                <option value="ALL">Semua Mata Pelajaran</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Carian Nama Murid</label>
+              <input id="filter-uasa-search" oninput="renderUASA()" type="text" placeholder="Taip nama murid..." class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards UASA -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Calon UASA (T1 &amp; T2)</span>
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-uasa-murid" class="text-2xl sm:text-3xl font-extrabold text-slate-900">461</span>
+            <span class="text-xs text-slate-500 font-medium">orang murid</span>
+          </div>
+          <p id="kpi-uasa-murid-sub" class="text-xs text-slate-500 mt-1.5">Tahap 1: 215 | Tahap 2: 246</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Peratus Lulus (Gred A - E)</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-uasa-lulus-pct" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">0.00%</span>
+            <span id="kpi-uasa-lulus-count" class="text-xs font-semibold text-emerald-600">(0)</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Daripada kertas yang diduduki</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Cemerlang Gred A</span>
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-uasa-greda-pct" class="text-2xl sm:text-3xl font-extrabold text-indigo-700">0.00%</span>
+            <span id="kpi-uasa-greda-count" class="text-xs font-semibold text-indigo-600">(0)</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Skor 82% - 100% (Gred A)</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-rose-200 shadow-sm card-shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-rose-800">Gred F &amp; TD (Tidak Ditaksir)</span>
+            <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
+              <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="kpi-uasa-gredf-count" class="text-2xl sm:text-3xl font-extrabold text-rose-700">0</span>
+            <span id="kpi-uasa-td-count" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-800">TD (Tidak Ditaksir): 0</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Termasuk 73 calon T4 TD (Tidak Ditaksir) bagi BM/BI/MT/SN</p>
+        </div>
+      </div>
+
+      <!-- Charts UASA -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Taburan Gred UASA (A, B, C, D, E, F) Mengikut Subjek</h3>
+            <p class="text-xs text-slate-500">Gabungan analisis UASA Tahap 1 (Tahun 1–3) dan Tahap 2 (Tahun 4–6)</p>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-uasa-subjek"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow flex flex-col">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Komposisi Gred Keseluruhan UASA 2026</h3>
+            <p class="text-xs text-slate-500">Pecahan Gred A hingga F berdasarkan penapis semasa</p>
+          </div>
+          <div class="relative flex-1 min-h-[320px]">
+            <canvas id="chart-uasa-doughnut"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-View Switcher for UASA Tables -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm card-shadow overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2 no-print">
+            <button id="btn-uasa-view-summary" onclick="setUasaView('summary')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-900 text-white shadow-sm transition">
+              1. Rumusan Mengikut Subjek &amp; Tahun (A–F)
+            </button>
+            <button id="btn-uasa-view-students" onclick="setUasaView('students')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              2. Senarai Keputusan Individu Murid (461 Murid)
+            </button>
+          </div>
+          <span id="uasa-table-badge" class="text-xs font-semibold text-slate-500">
+            Menunjukkan rumusan gabungan Tahap 1 &amp; Tahap 2
+          </span>
+        </div>
+
+        <!-- VIEW 1: UASA SUMMARY TABLE -->
+        <div id="uasa-summary-container" class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white uppercase tracking-wider text-[11px]">
+                <th class="py-3 px-3.5 font-semibold">Mata Pelajaran</th>
+                <th class="py-3 px-2.5 font-semibold">Tahap</th>
+                <th class="py-3 px-2.5 font-semibold">Tahun</th>
+                <th class="py-3 px-2 text-center font-semibold bg-emerald-950">A</th>
+                <th class="py-3 px-2 text-center font-semibold">B</th>
+                <th class="py-3 px-2 text-center font-semibold">C</th>
+                <th class="py-3 px-2 text-center font-semibold">D</th>
+                <th class="py-3 px-2 text-center font-semibold">E</th>
+                <th class="py-3 px-2 text-center font-semibold bg-rose-950">F</th>
+                <th class="py-3 px-2 text-center font-semibold" title="Tidak Ditaksir">TD (Tidak Ditaksir)</th>
+                <th class="py-3 px-2.5 text-center font-bold bg-emerald-900 text-emerald-100">% Lulus (A-E)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">GPMP</th>
+                <th class="py-3 px-3 text-center font-semibold">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-uasa-summary" class="divide-y divide-slate-200 text-slate-700"></tbody>
+          </table>
+        </div>
+
+        <!-- VIEW 2: UASA INDIVIDUAL STUDENTS TABLE -->
+        <div id="uasa-students-container" class="hidden overflow-x-auto custom-scrollbar">
+          <div class="px-4 py-2.5 bg-blue-50/70 border-b border-blue-100 text-[11px] text-blue-900 flex flex-wrap items-center justify-between gap-2">
+            <span><strong>Nota Paparan:</strong> Tahap 1 memaparkan <em>Markah &amp; Gred</em> (A: 82–100, B: 66–81, C: 50–65, D: 35–49, E: 20–34, F: 0–19). Tahap 2 memaparkan <em>Gred Rasmi</em> (A–F / TD [Tidak Ditaksir]).</span>
+            <span id="uasa-student-count-label" class="font-bold">461 Murid</span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white uppercase tracking-wider text-[10px]">
+                <th class="py-3 px-2.5 font-semibold">Bil</th>
+                <th class="py-3 px-2.5 font-semibold">Kelas</th>
+                <th class="py-3 px-3 font-semibold min-w-[200px]">Nama Murid</th>
+                <th class="py-3 px-2 text-center font-semibold">BM</th>
+                <th class="py-3 px-2 text-center font-semibold">BI</th>
+                <th class="py-3 px-2 text-center font-semibold">MT</th>
+                <th class="py-3 px-2 text-center font-semibold">SN</th>
+                <th class="py-3 px-2 text-center font-semibold">PAI/PM</th>
+                <th class="py-3 px-2 text-center font-semibold">BA</th>
+                <th class="py-3 px-2 text-center font-semibold">PJPK</th>
+                <th class="py-3 px-2 text-center font-semibold">MZ</th>
+                <th class="py-3 px-2 text-center font-semibold">PSV</th>
+                <th class="py-3 px-2 text-center font-semibold">RBT</th>
+                <th class="py-3 px-2 text-center font-semibold">SEJ</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-uasa-students" class="divide-y divide-slate-200 text-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 4: MPT4 2026 (TAHUN 4)                            -->
+    <!-- ========================================================= -->
+    <section id="sec-mpt4" class="hidden space-y-6">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm no-print">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-slate-800 font-semibold text-sm">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-blue-700"></i>
+            <span>Penapis Analisis MPT4 2026 (Tahun 4 — Markah Lulus Minimum: 20%)</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Kelas Tahun 4</label>
+              <select id="filter-mpt4-kelas" onchange="renderMPT4()" class="w-full sm:w-44 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800">
+                <option value="ALL">Semua Kelas (73 Murid)</option>
+                <option value="4 BESTARI">4 Bestari (37 Murid)</option>
+                <option value="4 CEMERLANG">4 Cemerlang (36 Murid)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Status Pencapaian</label>
+              <select id="filter-mpt4-status" onchange="renderMPT4()" class="w-full sm:w-52 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800">
+                <option value="ALL">Semua Murid</option>
+                <option value="LULUS_SEMUA">Lulus Semua 4 Subjek</option>
+                <option value="ADA_GAGAL">Gagal Sekurang-kurangnya 1</option>
+                <option value="GAGAL_SEMUA">Gagal Semua 4 Subjek</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Carian Nama / No. KP</label>
+              <input id="filter-mpt4-search" oninput="renderMPT4()" type="text" placeholder="Cari murid..." class="w-full sm:w-48 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards MPT4 -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Calon MPT4</span>
+          <div id="kpi-mpt4-total" class="text-2xl font-extrabold text-slate-900 mt-1.5">73</div>
+          <p id="kpi-mpt4-lulus-all" class="text-[11px] font-semibold text-emerald-700 mt-1">Lulus Semua: 0</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Lulus B. Melayu</span>
+          <div id="kpi-mpt4-bm" class="text-2xl font-extrabold text-blue-800 mt-1.5">0%</div>
+          <p id="kpi-mpt4-bm-sub" class="text-[11px] text-slate-500 mt-1">Purata: 0%</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Lulus B. Inggeris</span>
+          <div id="kpi-mpt4-bi" class="text-2xl font-extrabold text-indigo-800 mt-1.5">0%</div>
+          <p id="kpi-mpt4-bi-sub" class="text-[11px] text-slate-500 mt-1">Purata: 0%</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-800">Lulus Matematik</span>
+          <div id="kpi-mpt4-mt" class="text-2xl font-extrabold text-amber-700 mt-1.5">0%</div>
+          <p id="kpi-mpt4-mt-sub" class="text-[11px] text-slate-500 mt-1">Purata: 0%</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Lulus Sains</span>
+          <div id="kpi-mpt4-sn" class="text-2xl font-extrabold text-emerald-700 mt-1.5">0%</div>
+          <p id="kpi-mpt4-sn-sub" class="text-[11px] text-slate-500 mt-1">Purata: 0%</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-emerald-200 shadow-sm card-shadow">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">Lulus Semua (4M)</span>
+          <div id="kpi-mpt4-4m-pct" class="text-2xl font-extrabold text-emerald-700 mt-1.5">0%</div>
+          <p id="kpi-mpt4-4m-cnt" class="text-[11px] text-slate-500 mt-1">0 / 73 Murid</p>
+        </div>
+      </div>
+
+      <!-- Charts MPT4 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <h3 class="text-base font-bold text-slate-900">Perbandingan % Lulus: 4 Bestari vs 4 Cemerlang</h3>
+          <p class="text-xs text-slate-500 mb-4">Peratus lulus bagi 4 mata pelajaran teras MPT4 2026</p>
+          <div class="h-[290px]">
+            <canvas id="chart-mpt4-lulus"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm card-shadow">
+          <h3 class="text-base font-bold text-slate-900">Perbandingan Purata Markah (%): 4 Bestari vs 4 Cemerlang</h3>
+          <p class="text-xs text-slate-500 mb-4">Min skor murid mengikut subjek</p>
+          <div class="h-[290px]">
+            <canvas id="chart-mpt4-min"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table MPT4 -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm card-shadow overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Senarai Keputusan Individu Murid MPT4 2026</h3>
+            <p class="text-xs text-slate-500">Rekod penuh 73 calon Tahun 4 (4 Bestari &amp; 4 Cemerlang)</p>
+          </div>
+          <span id="mpt4-count-badge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">73 Murid</span>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white uppercase tracking-wider text-[11px]">
+                <th class="py-3 px-3 font-semibold">Bil</th>
+                <th class="py-3 px-3 font-semibold">Kelas</th>
+                <th class="py-3 px-3 font-semibold">Nama Murid</th>
+                <th class="py-3 px-3 font-semibold">No. Pengenalan</th>
+                <th class="py-3 px-2.5 text-center font-semibold">BM (%)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">BI (%)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">Matematik (%)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">Sains (%)</th>
+                <th class="py-3 px-2.5 text-center font-semibold">Purata</th>
+                <th class="py-3 px-3 text-center font-semibold">Rumusan</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-mpt4" class="divide-y divide-slate-200 text-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>&copy; 2026 Unit Kurikulum &amp; Pentaksiran — Sekolah Kebangsaan Sungai Lada, WP Labuan.</span>
+      <span>Sumber Data Rasmi: PBD Akhir Tahun, PBD Pertengahan Tahun, UASA (Tahap 1 &amp; 2) &amp; MPT4 2026</span>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- COMPLETE DATASET & ANALYTICS ENGINE                       -->
+  <!-- ========================================================= -->
+  <script>
+    // ---------------------------------------------------------
+    // 1. DATASET PBD AKHIR TAHUN 2026 (GAMBAR 1)
+    // Format: { subjek, tahun, tp1, tp2, tp3, tp4, tp5, tp6, td, jumlah }
+    // ---------------------------------------------------------
+    const pbdAkhirData = [
+      // BAHASA ARAB
+      { subjek: "BAHASA ARAB", tahun: "TAHUN SATU", tp1: 1, tp2: 2, tp3: 19, tp4: 19, tp5: 14, tp6: 10, td: 0, jumlah: 65 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 0, tp4: 30, tp5: 28, tp6: 16, td: 0, jumlah: 74 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 16, tp4: 30, tp5: 17, tp6: 13, td: 0, jumlah: 76 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 13, tp4: 15, tp5: 8, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 12, tp4: 36, tp5: 12, tp6: 11, td: 0, jumlah: 71 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 10, tp4: 30, tp5: 40, tp6: 22, td: 0, jumlah: 102 },
+      // BAHASA INGGERIS
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN SATU", tp1: 1, tp2: 13, tp3: 16, tp4: 15, tp5: 15, tp6: 5, td: 0, jumlah: 65 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN DUA", tp1: 0, tp2: 7, tp3: 16, tp4: 23, tp5: 23, tp6: 5, td: 0, jumlah: 74 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN TIGA", tp1: 0, tp2: 5, tp3: 24, tp4: 28, tp5: 12, tp6: 7, td: 0, jumlah: 76 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN EMPAT", tp1: 0, tp2: 9, tp3: 11, tp4: 10, tp5: 6, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN LIMA", tp1: 0, tp2: 1, tp3: 15, tp4: 26, tp5: 20, tp6: 9, td: 0, jumlah: 71 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN ENAM", tp1: 0, tp2: 4, tp3: 19, tp4: 35, tp5: 20, tp6: 24, td: 0, jumlah: 102 },
+      // BAHASA MELAYU
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN SATU", tp1: 1, tp2: 6, tp3: 16, tp4: 19, tp5: 15, tp6: 8, td: 0, jumlah: 65 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN DUA", tp1: 0, tp2: 2, tp3: 24, tp4: 13, tp5: 22, tp6: 13, td: 0, jumlah: 74 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN TIGA", tp1: 0, tp2: 5, tp3: 11, tp4: 34, tp5: 14, tp6: 12, td: 0, jumlah: 76 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN EMPAT", tp1: 0, tp2: 2, tp3: 9, tp4: 13, tp5: 8, tp6: 4, td: 0, jumlah: 36 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN LIMA", tp1: 0, tp2: 2, tp3: 4, tp4: 18, tp5: 24, tp6: 23, td: 0, jumlah: 71 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN ENAM", tp1: 0, tp2: 1, tp3: 6, tp4: 16, tp5: 41, tp6: 38, td: 0, jumlah: 102 },
+      // MATEMATIK
+      { subjek: "MATEMATIK", tahun: "TAHUN SATU", tp1: 1, tp2: 4, tp3: 23, tp4: 11, tp5: 22, tp6: 4, td: 0, jumlah: 65 },
+      { subjek: "MATEMATIK", tahun: "TAHUN DUA", tp1: 0, tp2: 2, tp3: 24, tp4: 30, tp5: 11, tp6: 7, td: 0, jumlah: 74 },
+      { subjek: "MATEMATIK", tahun: "TAHUN TIGA", tp1: 0, tp2: 7, tp3: 25, tp4: 21, tp5: 17, tp6: 6, td: 0, jumlah: 76 },
+      { subjek: "MATEMATIK", tahun: "TAHUN EMPAT", tp1: 0, tp2: 3, tp3: 10, tp4: 16, tp5: 7, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "MATEMATIK", tahun: "TAHUN LIMA", tp1: 0, tp2: 9, tp3: 23, tp4: 14, tp5: 15, tp6: 10, td: 0, jumlah: 71 },
+      { subjek: "MATEMATIK", tahun: "TAHUN ENAM", tp1: 0, tp2: 4, tp3: 29, tp4: 25, tp5: 31, tp6: 13, td: 0, jumlah: 102 },
+      // PENDIDIKAN ISLAM
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN SATU", tp1: 1, tp2: 4, tp3: 21, tp4: 14, tp5: 9, tp6: 10, td: 0, jumlah: 59 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 25, tp4: 27, tp5: 17, tp6: 4, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 0, tp4: 30, tp5: 26, tp6: 17, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 14, tp4: 14, tp5: 8, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 2, tp4: 8, tp5: 36, tp6: 19, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 2, tp4: 12, tp5: 48, tp6: 36, td: 0, jumlah: 98 },
+      // PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN SATU", tp1: 0, tp2: 0, tp3: 1, tp4: 12, tp5: 30, tp6: 22, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 0, tp4: 21, tp5: 29, tp6: 24, td: 0, jumlah: 74 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 0, tp4: 7, tp5: 41, tp6: 28, td: 0, jumlah: 76 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 0, tp4: 12, tp5: 14, tp6: 10, td: 0, jumlah: 36 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 0, tp4: 0, tp5: 33, tp6: 38, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 1, tp4: 4, tp5: 47, tp6: 50, td: 0, jumlah: 102 },
+      // PENDIDIKAN MORAL (Exact rows from Image 1)
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN SATU", tp1: 0, tp2: 0, tp3: 0, tp4: 3, tp5: 0, tp6: 3, td: 0, jumlah: 6 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 0, tp6: 0, td: 0, jumlah: 1 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 1, tp6: 1, td: 0, jumlah: 3 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 3, tp6: 2, td: 0, jumlah: 6 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 0, tp4: 0, tp5: 2, tp6: 2, td: 0, jumlah: 4 },
+      // PENDIDIKAN MUZIK
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN SATU", tp1: 1, tp2: 0, tp3: 8, tp4: 18, tp5: 33, tp6: 5, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 5, tp4: 31, tp5: 38, tp6: 0, td: 0, jumlah: 74 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 5, tp4: 22, tp5: 43, tp6: 6, td: 0, jumlah: 76 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN EMPAT", tp1: 0, tp2: 1, tp3: 22, tp4: 4, tp5: 9, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 15, tp4: 14, tp5: 35, tp6: 7, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 2, tp4: 9, tp5: 67, tp6: 24, td: 0, jumlah: 102 },
+      // PENDIDIKAN SENI VISUAL
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN SATU", tp1: 2, tp2: 0, tp3: 5, tp4: 27, tp5: 23, tp6: 8, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN DUA", tp1: 0, tp2: 1, tp3: 13, tp4: 30, tp5: 26, tp6: 4, td: 0, jumlah: 74 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 9, tp4: 20, tp5: 38, tp6: 9, td: 0, jumlah: 76 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 0, tp4: 17, tp5: 19, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 4, tp4: 15, tp5: 36, tp6: 16, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 4, tp4: 27, tp5: 42, tp6: 29, td: 0, jumlah: 102 },
+      // REKA BENTUK DAN TEKNOLOGI
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN EMPAT", tp1: 0, tp2: 1, tp3: 28, tp4: 7, tp5: 0, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 31, tp4: 12, tp5: 22, tp6: 6, td: 0, jumlah: 71 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 54, tp4: 42, tp5: 5, tp6: 1, td: 0, jumlah: 102 },
+      // SAINS
+      { subjek: "SAINS", tahun: "TAHUN SATU", tp1: 1, tp2: 4, tp3: 21, tp4: 10, tp5: 18, tp6: 11, td: 0, jumlah: 65 },
+      { subjek: "SAINS", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 24, tp4: 27, tp5: 18, tp6: 5, td: 0, jumlah: 74 },
+      { subjek: "SAINS", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 14, tp4: 33, tp5: 24, tp6: 5, td: 0, jumlah: 76 },
+      { subjek: "SAINS", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 25, tp4: 10, tp5: 1, tp6: 0, td: 0, jumlah: 36 },
+      { subjek: "SAINS", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 8, tp4: 29, tp5: 27, tp6: 7, td: 0, jumlah: 71 },
+      { subjek: "SAINS", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 15, tp4: 30, tp5: 37, tp6: 20, td: 0, jumlah: 102 },
+      // SEJARAH
+      { subjek: "SEJARAH", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 9, tp4: 12, tp5: 12, tp6: 3, td: 0, jumlah: 36 },
+      { subjek: "SEJARAH", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 4, tp4: 19, tp5: 38, tp6: 10, td: 0, jumlah: 71 },
+      { subjek: "SEJARAH", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 9, tp4: 19, tp5: 41, tp6: 33, td: 0, jumlah: 102 }
+    ];
+
+    // ---------------------------------------------------------
+    // 2. DATASET PBD PERTENGAHAN TAHUN 2026 (GAMBAR 5)
+    // ---------------------------------------------------------
+    const pbdTengahData = [
+      // BAHASA ARAB
+      { subjek: "BAHASA ARAB", tahun: "TAHUN SATU", tp1: 1, tp2: 14, tp3: 28, tp4: 15, tp5: 7, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 51, tp4: 19, tp5: 3, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN TIGA", tp1: 0, tp2: 3, tp3: 29, tp4: 33, tp5: 10, tp6: 0, td: 0, jumlah: 75 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN EMPAT", tp1: 0, tp2: 11, tp3: 34, tp4: 19, tp5: 7, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN LIMA", tp1: 0, tp2: 1, tp3: 21, tp4: 33, tp5: 10, tp6: 5, td: 0, jumlah: 70 },
+      { subjek: "BAHASA ARAB", tahun: "TAHUN ENAM", tp1: 0, tp2: 1, tp3: 23, tp4: 27, tp5: 44, tp6: 7, td: 0, jumlah: 102 },
+      // BAHASA INGGERIS
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN SATU", tp1: 2, tp2: 25, tp3: 11, tp4: 19, tp5: 8, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN DUA", tp1: 0, tp2: 12, tp3: 31, tp4: 24, tp5: 6, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN TIGA", tp1: 0, tp2: 10, tp3: 25, tp4: 28, tp5: 12, tp6: 0, td: 0, jumlah: 75 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN EMPAT", tp1: 0, tp2: 9, tp3: 26, tp4: 23, tp5: 13, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN LIMA", tp1: 0, tp2: 2, tp3: 14, tp4: 34, tp5: 15, tp6: 5, td: 0, jumlah: 70 },
+      { subjek: "BAHASA INGGERIS", tahun: "TAHUN ENAM", tp1: 0, tp2: 3, tp3: 37, tp4: 37, tp5: 23, tp6: 2, td: 0, jumlah: 102 },
+      // BAHASA MELAYU
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN SATU", tp1: 2, tp2: 15, tp3: 30, tp4: 15, tp5: 3, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN DUA", tp1: 0, tp2: 9, tp3: 32, tp4: 24, tp5: 8, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN TIGA", tp1: 0, tp2: 5, tp3: 16, tp4: 40, tp5: 7, tp6: 7, td: 0, jumlah: 75 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN EMPAT", tp1: 0, tp2: 7, tp3: 21, tp4: 26, tp5: 13, tp6: 4, td: 0, jumlah: 71 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN LIMA", tp1: 0, tp2: 3, tp3: 9, tp4: 31, tp5: 20, tp6: 7, td: 0, jumlah: 70 },
+      { subjek: "BAHASA MELAYU", tahun: "TAHUN ENAM", tp1: 0, tp2: 2, tp3: 10, tp4: 30, tp5: 47, tp6: 13, td: 0, jumlah: 102 },
+      // MATEMATIK
+      { subjek: "MATEMATIK", tahun: "TAHUN SATU", tp1: 1, tp2: 10, tp3: 30, tp4: 20, tp5: 4, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "MATEMATIK", tahun: "TAHUN DUA", tp1: 0, tp2: 10, tp3: 38, tp4: 22, tp5: 3, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "MATEMATIK", tahun: "TAHUN TIGA", tp1: 0, tp2: 13, tp3: 34, tp4: 20, tp5: 8, tp6: 0, td: 0, jumlah: 75 },
+      { subjek: "MATEMATIK", tahun: "TAHUN EMPAT", tp1: 0, tp2: 15, tp3: 20, tp4: 19, tp5: 17, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "MATEMATIK", tahun: "TAHUN LIMA", tp1: 0, tp2: 4, tp3: 27, tp4: 22, tp5: 16, tp6: 1, td: 0, jumlah: 70 },
+      { subjek: "MATEMATIK", tahun: "TAHUN ENAM", tp1: 0, tp2: 4, tp3: 37, tp4: 44, tp5: 16, tp6: 1, td: 0, jumlah: 102 },
+      // PENDIDIKAN ISLAM
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN SATU", tp1: 1, tp2: 10, tp3: 23, tp4: 19, tp5: 3, tp6: 3, td: 0, jumlah: 59 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN DUA", tp1: 0, tp2: 7, tp3: 37, tp4: 20, tp5: 5, tp6: 3, td: 0, jumlah: 72 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN TIGA", tp1: 0, tp2: 4, tp3: 31, tp4: 26, tp5: 11, tp6: 0, td: 0, jumlah: 72 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN EMPAT", tp1: 0, tp2: 11, tp3: 31, tp4: 16, tp5: 10, tp6: 0, td: 0, jumlah: 68 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 3, tp4: 23, tp5: 30, tp6: 8, td: 0, jumlah: 64 },
+      { subjek: "PENDIDIKAN ISLAM", tahun: "TAHUN ENAM", tp1: 0, tp2: 1, tp3: 15, tp4: 27, tp5: 37, tp6: 18, td: 0, jumlah: 98 },
+      // PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN SATU", tp1: 0, tp2: 1, tp3: 35, tp4: 29, tp5: 0, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 26, tp4: 30, tp5: 17, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 10, tp4: 31, tp5: 28, tp6: 6, td: 0, jumlah: 75 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 5, tp4: 29, tp5: 28, tp6: 9, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 2, tp4: 6, tp5: 55, tp6: 7, td: 0, jumlah: 70 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 5, tp4: 20, tp5: 69, tp6: 8, td: 0, jumlah: 102 },
+      // PENDIDIKAN MORAL
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN SATU", tp1: 0, tp2: 0, tp3: 3, tp4: 3, tp5: 0, tp6: 0, td: 0, jumlah: 6 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 0, tp6: 0, td: 0, jumlah: 1 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 0, tp4: 2, tp5: 1, tp6: 0, td: 0, jumlah: 3 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 1, tp6: 1, td: 0, jumlah: 3 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 0, tp4: 3, tp5: 3, tp6: 0, td: 0, jumlah: 6 },
+      { subjek: "PENDIDIKAN MORAL", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 0, tp4: 1, tp5: 3, tp6: 0, td: 0, jumlah: 4 },
+      // PENDIDIKAN MUZIK
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN SATU", tp1: 1, tp2: 7, tp3: 31, tp4: 14, tp5: 12, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN DUA", tp1: 0, tp2: 8, tp3: 30, tp4: 12, tp5: 23, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 4, tp4: 39, tp5: 32, tp6: 0, td: 0, jumlah: 75 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 10, tp4: 37, tp5: 24, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 0, tp4: 26, tp5: 44, tp6: 0, td: 0, jumlah: 70 },
+      { subjek: "PENDIDIKAN MUZIK", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 0, tp4: 36, tp5: 66, tp6: 0, td: 0, jumlah: 102 },
+      // PENDIDIKAN SENI VISUAL
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN SATU", tp1: 1, tp2: 1, tp3: 25, tp4: 38, tp5: 0, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN DUA", tp1: 0, tp2: 0, tp3: 13, tp4: 60, tp5: 0, tp6: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN TIGA", tp1: 0, tp2: 1, tp3: 4, tp4: 69, tp5: 2, tp6: 0, td: 0, jumlah: 75 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 4, tp4: 59, tp5: 8, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 1, tp4: 46, tp5: 22, tp6: 1, td: 0, jumlah: 70 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 4, tp4: 58, tp5: 35, tp6: 5, td: 0, jumlah: 102 },
+      // REKA BENTUK DAN TEKNOLOGI
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 7, tp4: 41, tp5: 23, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN LIMA", tp1: 0, tp2: 1, tp3: 1, tp4: 21, tp5: 47, tp6: 0, td: 0, jumlah: 70 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 1, tp4: 10, tp5: 91, tp6: 0, td: 0, jumlah: 102 },
+      // SAINS
+      { subjek: "SAINS", tahun: "TAHUN SATU", tp1: 1, tp2: 2, tp3: 26, tp4: 20, tp5: 16, tp6: 0, td: 0, jumlah: 65 },
+      { subjek: "SAINS", tahun: "TAHUN DUA", tp1: 0, tp2: 4, tp3: 30, tp4: 28, tp5: 10, tp6: 1, td: 0, jumlah: 73 },
+      { subjek: "SAINS", tahun: "TAHUN TIGA", tp1: 0, tp2: 0, tp3: 15, tp4: 48, tp5: 11, tp6: 1, td: 0, jumlah: 75 },
+      { subjek: "SAINS", tahun: "TAHUN EMPAT", tp1: 0, tp2: 0, tp3: 9, tp4: 62, tp5: 0, tp6: 0, td: 0, jumlah: 71 },
+      { subjek: "SAINS", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 5, tp4: 50, tp5: 15, tp6: 0, td: 0, jumlah: 70 },
+      { subjek: "SAINS", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 6, tp4: 49, tp5: 47, tp6: 0, td: 0, jumlah: 102 },
+      // SEJARAH
+      { subjek: "SEJARAH", tahun: "TAHUN EMPAT", tp1: 0, tp2: 5, tp3: 20, tp4: 37, tp5: 6, tp6: 3, td: 0, jumlah: 71 },
+      { subjek: "SEJARAH", tahun: "TAHUN LIMA", tp1: 0, tp2: 0, tp3: 16, tp4: 27, tp5: 22, tp6: 5, td: 0, jumlah: 70 },
+      { subjek: "SEJARAH", tahun: "TAHUN ENAM", tp1: 0, tp2: 0, tp3: 14, tp4: 23, tp5: 51, tp6: 14, td: 0, jumlah: 102 }
+    ];
+
+    // ---------------------------------------------------------
+    // 3. DATASET UASA TAHAP 2 RUMUSAN RASMI (GAMBAR 2)
+    // ---------------------------------------------------------
+    const uasaTahap2SummaryOfficial = [
+      // BAHASA ARAB
+      { subjek: "BAHASA ARAB", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 16, b: 14, c: 20, d: 19, e: 4, f: 0, td: 0, jumlah: 73 },
+      { subjek: "BAHASA ARAB", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 22, b: 18, c: 14, d: 14, e: 3, f: 0, td: 0, jumlah: 71 },
+      { subjek: "BAHASA ARAB", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 18, b: 26, c: 29, d: 28, e: 1, f: 0, td: 0, jumlah: 102 },
+      // BAHASA INGGERIS
+      { subjek: "BAHASA INGGERIS", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 73, jumlah: 73 },
+      { subjek: "BAHASA INGGERIS", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 8, b: 19, c: 21, d: 7, e: 10, f: 6, td: 0, jumlah: 71 },
+      { subjek: "BAHASA INGGERIS", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 25, b: 27, c: 10, d: 14, e: 24, f: 2, td: 0, jumlah: 102 },
+      // BAHASA MELAYU
+      { subjek: "BAHASA MELAYU", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 73, jumlah: 73 },
+      { subjek: "BAHASA MELAYU", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 20, b: 17, c: 16, d: 8, e: 7, f: 3, td: 0, jumlah: 71 },
+      { subjek: "BAHASA MELAYU", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 34, b: 41, c: 15, d: 5, e: 7, f: 0, td: 0, jumlah: 102 },
+      // MATEMATIK
+      { subjek: "MATEMATIK", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 73, jumlah: 73 },
+      { subjek: "MATEMATIK", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 1, b: 7, c: 7, d: 43, e: 13, f: 0, td: 0, jumlah: 71 },
+      { subjek: "MATEMATIK", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 4, b: 4, c: 25, d: 44, e: 24, f: 1, td: 0, jumlah: 102 },
+      // PENDIDIKAN ISLAM
+      { subjek: "PENDIDIKAN ISLAM", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 4, b: 18, c: 27, d: 13, e: 8, f: 0, td: 0, jumlah: 70 },
+      { subjek: "PENDIDIKAN ISLAM", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 30, b: 14, c: 10, d: 7, e: 4, f: 0, td: 0, jumlah: 65 },
+      { subjek: "PENDIDIKAN ISLAM", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 40, b: 30, c: 15, d: 8, e: 4, f: 1, td: 0, jumlah: 98 },
+      // PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 22, b: 33, c: 17, d: 1, e: 0, f: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 29, b: 29, c: 11, d: 2, e: 0, f: 0, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 55, b: 20, c: 27, d: 0, e: 0, f: 0, td: 0, jumlah: 102 },
+      // PENDIDIKAN MORAL
+      { subjek: "PENDIDIKAN MORAL", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 1, b: 2, c: 0, d: 0, e: 0, f: 0, td: 0, jumlah: 3 },
+      { subjek: "PENDIDIKAN MORAL", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 4, b: 1, c: 1, d: 0, e: 0, f: 0, td: 0, jumlah: 6 },
+      { subjek: "PENDIDIKAN MORAL", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 2, b: 2, c: 0, d: 0, e: 0, f: 0, td: 0, jumlah: 4 },
+      // PENDIDIKAN MUZIK
+      { subjek: "PENDIDIKAN MUZIK", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 28, b: 18, c: 8, d: 12, e: 7, f: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN MUZIK", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 24, b: 26, c: 7, d: 11, e: 3, f: 0, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN MUZIK", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 30, b: 54, c: 13, d: 5, e: 0, f: 0, td: 0, jumlah: 102 },
+      // PENDIDIKAN SENI VISUAL
+      { subjek: "PENDIDIKAN SENI VISUAL", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 24, b: 31, c: 16, d: 2, e: 0, f: 0, td: 0, jumlah: 73 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 36, b: 31, c: 4, d: 0, e: 0, f: 0, td: 0, jumlah: 71 },
+      { subjek: "PENDIDIKAN SENI VISUAL", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 43, b: 30, c: 21, d: 8, e: 0, f: 0, td: 0, jumlah: 102 },
+      // REKA BENTUK DAN TEKNOLOGI
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 14, b: 19, c: 18, d: 22, e: 0, f: 0, td: 0, jumlah: 73 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 6, b: 26, c: 16, d: 23, e: 0, f: 0, td: 0, jumlah: 71 },
+      { subjek: "REKA BENTUK DAN TEKNOLOGI", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 2, b: 21, c: 39, d: 39, e: 1, f: 0, td: 0, jumlah: 102 },
+      // SAINS
+      { subjek: "SAINS", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 73, jumlah: 73 },
+      { subjek: "SAINS", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 0, b: 3, c: 7, d: 32, e: 18, f: 11, td: 0, jumlah: 71 },
+      { subjek: "SAINS", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 1, b: 10, c: 35, d: 17, e: 31, f: 8, td: 0, jumlah: 102 },
+      // SEJARAH
+      { subjek: "SEJARAH", tahap: "TAHAP 2", tahun: "TAHUN 4", a: 4, b: 9, c: 25, d: 15, e: 20, f: 0, td: 0, jumlah: 73 },
+      { subjek: "SEJARAH", tahap: "TAHAP 2", tahun: "TAHUN 5", a: 0, b: 17, c: 29, d: 15, e: 10, f: 0, td: 0, jumlah: 71 },
+      { subjek: "SEJARAH", tahap: "TAHAP 2", tahun: "TAHUN 6", a: 11, b: 25, c: 47, d: 16, e: 3, f: 0, td: 0, jumlah: 102 }
+    ];
+
+    // ---------------------------------------------------------
+    // 4. DATASET UASA INDIVIDU MURID TAHAP 1 (PDF 19 MUKA SURAT - 215 MURID)
+    // Format compact: [kelas, nama, bm, bi, mt, sn, pk, pai, pm, psv, ba, mz]
+    // ---------------------------------------------------------
+    const uasaTahap1Raw = [
+      // 1 BESTARI (33 Murid)
+      ["1 BESTARI","ABYANNA HAWA BINTI ALIFFIKRY",98,80,52,74,92,90,null,81,67,65],
+      ["1 BESTARI","ADEELA DALILA BINTI ROSLI",84,84,72,92,93,91,null,77,87,95],
+      ["1 BESTARI","AHMAD HADEEF UZAIR BIN MOHD SYAZREEL",64,92,58,87,84,72,null,77,63,90],
+      ["1 BESTARI","AHMAD LUQMAN BIN SAHRIZAN",92,86,54,56,77,50,null,68,67,50],
+      ["1 BESTARI","AIRIEL NIZAM BIN ARDI",88,82,92,93,80,92,null,89,94,75],
+      ["1 BESTARI","AKID DAFFA BIN AHMAD NAZRIE",26,14,26,36,67,50,null,75,66,90],
+      ["1 BESTARI","AMMAR ZIQWAN BIN FAZLI",56,44,58,78,87,62,null,75,79,70],
+      ["1 BESTARI","DELLISHA AYANA BINTI MOHD NAQIUDDIN",80,72,57,80,82,77,null,78,68,95],
+      ["1 BESTARI","DHINA DAYANA BINTI MOHD DANIEL RAMADHAN",58,56,52,74,80,53,null,78,43,85],
+      ["1 BESTARI","EDELINE FAITH ELEXSON",70,90,76,84,86,null,88,74,34,95],
+      ["1 BESTARI","EMBUN MIKAYLA BINTI MOHD NOOR REDZUAN",38,76,58,46,50,44,null,78,64,55],
+      ["1 BESTARI","GLORETHA ELONA SIMSON",62,64,56,88,82,null,84,89,37,95],
+      ["1 BESTARI","HAZIQ ISKANDAR BIN ROSMAINI",74,74,84,90,88,76,null,95,73,90],
+      ["1 BESTARI","MARK MARQES ANDERSON JEFFSON",36,34,26,16,43,null,76,78,48,90],
+      ["1 BESTARI","MARYAM RAISA BINTI MOHD ROYIZAN",92,100,86,88,91,78,null,78,61,100],
+      ["1 BESTARI","MAYA ALISHA BINTI ABDUL MUSYARIL",70,54,68,60,80,72,null,80,76,90],
+      ["1 BESTARI","MIKAEL BIN MOHD ADDYSHAM",80,48,58,56,83,52,null,85,49,90],
+      ["1 BESTARI","MOHAMMAD ZAYYAN ADHAM BIN ZAMALUL",84,90,70,93,89,82,null,83,67,100],
+      ["1 BESTARI","MUHAMAD NUH QHASFI BIN ZAINUDDIN",60,36,52,56,68,62,null,55,35,75],
+      ["1 BESTARI","MUHAMMAD AL-ZAHAR RAIS AFHAM BIN MOHAMMAD AID",74,86,90,88,91,83,null,91,92,75],
+      ["1 BESTARI","MUHAMMAD RYAN ANDRE BIN AZLAN",92,56,84,70,89,98,null,73,85,95],
+      ["1 BESTARI","MUHAMMAD SHAFARAZ BIN SAHARY ZOI",66,28,55,34,67,71,null,72,58,60],
+      ["1 BESTARI","NAURA AZIZAH BINTI ZAMEZAN",82,76,82,80,85,88,null,95,70,95],
+      ["1 BESTARI","NICK HAIDEAN ANDERSON JEFFSON",34,58,32,42,41,null,78,75,37,45],
+      ["1 BESTARI","NUR AIRA BATRISYA BINTI ABDUL RAHMAN",72,70,52,72,86,77,null,96,95,95],
+      ["1 BESTARI","NUR MAISARAH ALISHA BINTI MOHAMAD AZMI",66,60,67,74,90,98,null,76,82,85],
+      ["1 BESTARI","NUR YASMIN TANISHA BINTI YUSRIZAN",36,32,52,34,46,68,null,70,70,95],
+      ["1 BESTARI","NWUWAIRAH NOUR HUM AIYERA BINTI SAMSULBAHRI",100,80,96,94,92,98,null,70,99,100],
+      ["1 BESTARI","PUTRI NUR ZULEKHA BINTI MOHD IZWANI",98,74,74,94,93,90,null,70,89,100],
+      ["1 BESTARI","QUEENERA ROSSABELLE ANDRIAN",60,82,44,56,75,null,82,86,56,90],
+      ["1 BESTARI","RIA RAIDAH BINTI MOHAMMAD NORIZAM",80,60,70,76,53,56,null,53,47,70],
+      ["1 BESTARI","RICHEAL VEYANAH BINTI JULINICO",38,28,29,41,74,null,56,67,47,55],
+      ["1 BESTARI","SOFEA ALEEYSA",70,62,68,64,87,79,null,70,84,95],
+      // 1 CEMERLANG (32 Murid)
+      ["1 CEMERLANG","ADRA FASIHA BINTI MOHD FADZIL",82,82,84,89,86,90,null,90,86,78],
+      ["1 CEMERLANG","AIDIL ADREYAN BIN BOLHASNEY",62,46,46,72,69,66,null,63,45,80],
+      ["1 CEMERLANG","AINUL MAWADDAH MIKAYLA BINTI HAMZAH",82,92,64,90,82,76,null,65,62,93],
+      ["1 CEMERLANG","ALDRIN BIN AHAD",58,26,36,42,47,70,null,81,70,95],
+      ["1 CEMERLANG","ALFIRA FIONA BINTI ALFIAN",60,94,34,70,36,45,null,60,45,50],
+      ["1 CEMERLANG","ALMA MEDINA BINTI MOHD RIZMAN",44,42,46,38,64,69,null,87,62,78],
+      ["1 CEMERLANG","AMORA DIME BINTI ABDULLAH",44,74,42,42,82,60,null,73,48,83],
+      ["1 CEMERLANG","ELSWORTH HARRIS ELRON BIN ABDUL JAMI",34,14,28,24,46,46,null,50,28,48],
+      ["1 CEMERLANG","EZY HUMAIRA' BINTI ROSLI",72,62,40,48,73,70,null,75,46,70],
+      ["1 CEMERLANG","FAREL FAHMI BIN FADZILAH",48,30,36,48,52,73,null,61,58,95],
+      ["1 CEMERLANG","FATIMAH AZ ZAHRA BINTI MUHAMAD",24,26,30,35,66,42,null,81,35,70],
+      ["1 CEMERLANG","MOHAMAD NOR FURQAN BIN MOHAMAD NORSHAFIQFAZLEY",100,98,94,92,95,98,null,91,94,90],
+      ["1 CEMERLANG","MOHAMAD ZENEIDY BIN ZEBEDEUS",82,34,40,64,87,52,null,75,55,80],
+      ["1 CEMERLANG","MOHAMMAD FIKRI BIN ABD JARID",70,68,66,60,86,82,null,53,87,85],
+      ["1 CEMERLANG","MUHAMMAD AAKIF NAIM BIN NEDZFAR",96,96,78,94,94,88,null,72,91,90],
+      ["1 CEMERLANG","MUHAMMAD RAFIQ MIKAIL BIN JUMAINEE",98,94,94,92,91,94,null,75,94,95],
+      ["1 CEMERLANG","MUHAMMAD RIZQI BIN MOHD SHAH",48,40,34,32,71,69,null,69,53,48],
+      ["1 CEMERLANG","MUHAMMAD SHAKEEL UWAIS BIN MUHAMMAD IKHWAN",80,82,68,94,86,96,null,84,86,95],
+      ["1 CEMERLANG","MUHAMMAD SHEIKHAL ASYRANI BIN MOHD SHAHRUL NIZAM",74,88,76,74,87,63,null,79,56,88],
+      ["1 CEMERLANG","MUHAMMAD UZAIR BIN AMEEN KAIDAL",82,94,78,98,80,96,null,84,93,95],
+      ["1 CEMERLANG","NOR AHMADEY MUHAMMAD BIN NORMAIZOL",34,18,38,4,35,44,null,66,3,60],
+      ["1 CEMERLANG","NORSOFEA ARDYKA BINTI AG ZAINUDIN",24,6,24,52,42,22,null,0,37,45],
+      ["1 CEMERLANG","NUR ELIYA IRDINA BINTI ARMAN",84,54,52,24,89,75,null,93,52,84],
+      ["1 CEMERLANG","NUR KHATIJAH BINTI RADZMIL",32,46,44,38,61,59,null,81,46,85],
+      ["1 CEMERLANG","NUR SYIFA BINTI MOHD. AZWAN",30,22,28,26,76,50,null,61,39,63],
+      ["1 CEMERLANG","NURHIDAYANA BINTI DAHLAN",14,0,0,0,35,0,null,0,0,0],
+      ["1 CEMERLANG","NURSYAIELAH BINTI AZLAN",60,74,44,36,72,74,null,88,53,90],
+      ["1 CEMERLANG","NURULSYAHIDAH BINTI MOHAMMAD SHAM",24,20,30,18,35,40,null,60,45,65],
+      ["1 CEMERLANG","PUTRI AMIRA BINTI MARJAN",36,46,50,34,77,62,null,84,46,88],
+      ["1 CEMERLANG","ROFATUL AURA KHALEEDA BINTI AMIR",34,18,42,53,51,31,null,79,50,63],
+      ["1 CEMERLANG","SHARRAZ RAYYAN BIN ABDULLAH",82,68,54,64,82,73,null,88,76,88],
+      ["1 CEMERLANG","YASHA YUSOF BIN MOHD RAFAIL",90,84,80,86,83,94,null,88,89,100],
+      // 2 BESTARI (37 Murid)
+      ["2 BESTARI","AARISHA BINTI ARIFF",92,58,76,63,95,81,null,86,100,90],
+      ["2 BESTARI","AARYAN SYL BIN ABBY",62,80,84,66,90,86,null,55,77,80],
+      ["2 BESTARI","AHMAD IRSYAD RUWAIDI BIN ASMING",92,50,83,75,84,88,null,87,99,95],
+      ["2 BESTARI","AHMAD RIZQ AMSYAR BIN AHMAD FADZREEN",92,38,74,45,90,86,null,55,76,88],
+      ["2 BESTARI","ALEESA ZULAIKHA BINTI AHMAD RIZWAN",90,32,50,51,74,70,null,84,59,88],
+      ["2 BESTARI","ANIS ANIQAH BINTI MARZHUKHI",84,84,96,75,79,72,null,77,78,100],
+      ["2 BESTARI","AQASHAH BIN MUHAMMAD JAMIL",84,84,80,84,88,84,null,83,92,83],
+      ["2 BESTARI","CAELDEN DANE DABIESON",32,18,28,13,41,null,52,60,40,70],
+      ["2 BESTARI","DHIA QALEESYA BINTI ABDULLAH AFFIQ",94,78,92,65,88,84,null,86,70,93],
+      ["2 BESTARI","ELLEANOR MAGDALENCIA ELRON BINTI ABDUL JAMI",62,32,36,28,48,58,null,97,55,95],
+      ["2 BESTARI","HUGO JUNIOR BIN PAUL",42,20,38,25,66,54,null,45,43,85],
+      ["2 BESTARI","MOHAMAD UMAR YUSUF BIN MOHAMAD HAFIQ",60,42,52,60,77,78,null,81,75,95],
+      ["2 BESTARI","MUHAMAD HANIF BIN MATUSIN",62,52,82,74,80,80,null,55,88,98],
+      ["2 BESTARI","MUHAMAD SYAHMI MARZUQI BIN MOHD SHAZWI",82,44,78,65,86,66,null,85,82,98],
+      ["2 BESTARI","MUHAMMAD AL FATEH BIN MUHAMMAD FARID",98,98,100,95,95,96,null,76,100,98],
+      ["2 BESTARI","MUHAMMAD ANIQ SYAZWAN BIN MOHAMAD AYUB",82,50,76,58,84,68,null,65,68,73],
+      ["2 BESTARI","MUHAMMAD AQIL HAKIMI BIN MOHAMMAD KHAIRUL ISHAM",98,72,98,79,91,86,null,95,96,90],
+      ["2 BESTARI","MUHAMMAD ERRY ZAFRYN BIN JERRYN",56,40,62,53,74,80,null,62,80,88],
+      ["2 BESTARI","MUHAMMAD FAYYADH NAUFAL BIN AZMI",76,70,58,75,89,84,null,88,88,100],
+      ["2 BESTARI","MUHAMMAD IZZAT IFFAT BIN MATZAIN",68,42,66,78,91,88,null,73,60,93],
+      ["2 BESTARI","MUHAMMAD KHAIRY AFKAR BIN ABDULLAH",84,68,90,63,87,94,null,70,89,93],
+      ["2 BESTARI","MUHAMMAD RIZQI BIN ZABIDI",80,92,66,59,76,66,null,59,67,100],
+      ["2 BESTARI","MUHAMMAD ZIHNI FALIQ BIN MOHD FAHMI",48,26,44,35,60,52,null,50,62,90],
+      ["2 BESTARI","NAINA ISHITA BINTI RAIME",96,58,68,74,89,74,null,65,41,88],
+      ["2 BESTARI","NASUHA SHARHA BINTI MOHD ZULHISHAM",90,92,100,83,75,70,null,75,89,88],
+      ["2 BESTARI","NAYLA AALIYA ERYNA BINTI ABDUL AZIZ",74,84,86,74,63,74,null,87,61,75],
+      ["2 BESTARI","NOOR INARA AISYAH BINTI ABDUL RAHMAN",66,60,56,56,83,72,null,88,72,98],
+      ["2 BESTARI","NORDAIYAH AQILLA BINTI LAZRAN",74,78,52,60,82,54,null,71,54,100],
+      ["2 BESTARI","NUR MEDINA HAWANI BINTI RAHMAN",54,30,58,54,69,60,null,77,60,88],
+      ["2 BESTARI","NUR NADIERRA BINTI NAZIER",70,66,61,63,86,67,null,92,44,98],
+      ["2 BESTARI","NUR RAISHA AZZAHRA BINTI RAHIM",68,82,68,83,84,85,null,81,91,88],
+      ["2 BESTARI","NUR WAFA THAHIRAH BINTI ABD. KAHAR",42,30,70,44,55,58,null,76,78,78],
+      ["2 BESTARI","NURDAHLIA AAFIYAH BINTI ABDULLAH",28,76,52,51,72,48,null,84,54,88],
+      ["2 BESTARI","RIFQAH HILYAH HUMAIRAH BINTI MUHAMMAD RIAN AZHAR",66,62,62,70,80,92,null,81,89,78],
+      ["2 BESTARI","ZARA AULIYA BINTI MUHAMAD AIEZUDDIN",92,78,95,71,77,68,null,65,96,93],
+      ["2 BESTARI","ZAYN BIN AZHAR",62,56,50,70,78,56,null,68,71,98],
+      ["2 BESTARI","AHMAD BIN MUHAMMAD HABIBULLAH",94,80,96,84,91,93,null,87,100,88],
+      // 2 CEMERLANG (37 Murid)
+      ["2 CEMERLANG","AHMAD IZZUDIN BIN JAMBERI",24,36,36,26,35,48,null,65,48,58],
+      ["2 CEMERLANG","AIDAN FAYYADH BIN AZRIZAN",92,62,64,74,77,67,null,85,61,98],
+      ["2 CEMERLANG","AIRY ZAFFREL FAKRY HAQIMIE BIN NORIZAL",58,36,66,70,59,64,null,77,54,65],
+      ["2 CEMERLANG","ARIF ARYAN BIN JAMADIL",18,8,40,29,35,59,null,70,48,64],
+      ["2 CEMERLANG","DAYANG NUR ALEESYA BINTI MOHAMAD SHAHRIL",40,78,58,66,73,87,null,90,86,85],
+      ["2 CEMERLANG","HUMAIRA BINTI ABDULLAH",82,42,46,60,74,71,null,88,54,85],
+      ["2 CEMERLANG","IZZ MUHAMMAD ASYRAF BIN MOHAMAD SYAMSUL BAHRI",92,54,52,60,78,64,null,55,61,68],
+      ["2 CEMERLANG","MAZLIANA BINTI ABDULLAH",26,12,40,29,43,45,null,89,62,53],
+      ["2 CEMERLANG","MUHAMMAD AAKIF FIRASH BIN RUSDI",14,8,62,34,47,64,null,70,66,35],
+      ["2 CEMERLANG","MUHAMMAD ABDUL RAHMAN BIN MARASAN",12,18,40,29,35,46,null,55,46,48],
+      ["2 CEMERLANG","MUHAMMAD ADIB BIN MOHD RIZAN",44,72,54,55,77,74,null,75,46,73],
+      ["2 CEMERLANG","MUHAMMAD AIMAN HAIKAL BIN MOHD SYAHROL EZZUNN",8,28,34,35,36,52,null,45,35,38],
+      ["2 CEMERLANG","MUHAMMAD ANNUR BIN NASIR",12,28,34,25,35,67,null,53,47,60],
+      ["2 CEMERLANG","MUHAMMAD ZAID BIN MUHAMMAD ABI ZARR",30,38,72,43,51,60,null,65,75,54],
+      ["2 CEMERLANG","NUR ALIYA BATRISYA BINTI GHUMAIDI",50,36,28,54,52,68,null,60,65,60],
+      ["2 CEMERLANG","NUR AMEERA ADRIANA BINTI ABDULLAH",10,16,32,28,35,53,null,70,43,75],
+      ["2 CEMERLANG","NUR AQILA MARWA BINTI ABDULLAH",96,74,50,81,86,89,null,92,84,95],
+      ["2 CEMERLANG","NUR FARHANA QISHMINA BINTI MOHD EQFAR EFFENDI",26,76,40,45,68,53,null,88,56,65],
+      ["2 CEMERLANG","NUR IFRA MIKHAYLA BINTI INNOH ISNANG JOE",46,44,38,51,75,87,null,89,73,77],
+      ["2 CEMERLANG","NUR MARIANIH ANG BINTI ABDULLAH",42,62,48,38,35,49,null,75,60,75],
+      ["2 CEMERLANG","NUR RISKAH BINTI JAMAL",28,4,12,34,35,57,null,86,45,65],
+      ["2 CEMERLANG","NUR SUHAILAH SYAFIYA BINTI ABLET",24,6,50,24,35,54,null,80,36,60],
+      ["2 CEMERLANG","NUR UMAIRAH BINTI MOHD KHAIRUL",18,20,34,36,35,55,null,72,56,55],
+      ["2 CEMERLANG","NURSAHAYA BINTI MHASRI",12,14,36,26,35,58,null,50,40,43],
+      ["2 CEMERLANG","NURUL NABIHAH BINTI HALIFAH",66,66,52,53,70,50,null,95,56,75],
+      ["2 CEMERLANG","PUTRI NURQASEH EDDRIEANNA BINTI ABDUL SAIT",36,26,32,34,63,48,null,84,58,60],
+      ["2 CEMERLANG","QASEH SUMAYYAH BINTI MOHAMAD HISYAM",68,40,40,55,66,91,null,87,82,93],
+      ["2 CEMERLANG","RAIDUL ARIEF BIN RAMDAN",14,18,42,28,35,75,null,80,69,63],
+      ["2 CEMERLANG","RIZWAN BIN ABDULLAH",20,12,30,25,64,38,null,60,52,55],
+      ["2 CEMERLANG","SITI AISYAH HUMAIRAH BINTI MOHD SHAHRIL AZRIEZAM",70,68,78,74,83,89,null,89,83,90],
+      ["2 CEMERLANG","SITI HAJAR BINTI MUHAMMAD SANI",26,48,44,51,53,54,null,76,54,48],
+      ["2 CEMERLANG","SITI ZANIRAH ADRAWIYAH BINTI ZAIMIN",82,74,40,61,74,72,null,75,65,88],
+      ["2 CEMERLANG","SOFEA IRDINA BINTI MOHD SYAZMAN",50,90,52,74,63,40,null,86,52,85],
+      ["2 CEMERLANG","SYAFIQ SYAZWAN BIN MOHD RAZIF",36,30,46,34,37,47,null,65,55,68],
+      ["2 CEMERLANG","WAN ERMIENA AISYAH BINTI WAN MOHAMAD SYARIF",78,76,68,78,86,90,null,75,92,95],
+      ["2 CEMERLANG","WAZIRUL AZAM BIN PAIKAL",10,10,26,24,35,36,null,85,35,81],
+      ["2 CEMERLANG","AMMAR MUKHRIZ BIN MUHAMMAD ASYRAF",20,14,28,21,40,43,null,70,62,38],
+      // 3 BESTARI (39 Murid)
+      ["3 BESTARI","AFIF ZULFAIZ BIN DZULHAM",60,55,43,86,84,66,null,89,78,80],
+      ["3 BESTARI","AFRINA DZULAIKHA BINTI ROSLI",82,54,48,70,66,50,null,74,70,68],
+      ["3 BESTARI","AINA FAQIHAH BINTI MOHD FADZIL",88,69,82,88,83,94,null,95,81,82],
+      ["3 BESTARI","ALEEYA SOFIA BINTI ABDULLAH",86,35,41,70,77,72,null,78,94,74],
+      ["3 BESTARI","ASIAH SOLEHAH BINTI MUHAMMAD FAIZAL",62,45,46,72,66,76,null,89,89,78],
+      ["3 BESTARI","AUNI ATHIRAH BINTI SHAHRIZAM",84,67,94,78,83,92,null,84,94,94],
+      ["3 BESTARI","AURORA SAFIYA BINTI TAMRIN",92,95,68,96,79,96,null,69,94,92],
+      ["3 BESTARI","AZAN NIZAN BIN JEFFSON",68,19,41,58,79,74,null,84,73,72],
+      ["3 BESTARI","CATALEYA IZZARA BINTI FAZLI",62,35,19,48,69,48,null,72,48,66],
+      ["3 BESTARI","DANIA ALESHA BINTI MOHD ARRAUWI",84,89,69,60,83,76,null,82,91,80],
+      ["3 BESTARI","EVEBELLE ISABELL FRIDSTER WAGNER",82,46,50,68,84,null,100,70,31,82],
+      ["3 BESTARI","FALISHA AUFIA BINTI SUINIH",88,73,87,78,82,90,null,88,99,92],
+      ["3 BESTARI","GWENETHEA RAFELLA MATLEH",84,96,88,66,82,null,86,92,33,86],
+      ["3 BESTARI","HANA AYRA DAMIA BINTI ISAMUDDIN",30,35,32,36,59,62,null,94,60,52],
+      ["3 BESTARI","IRFAN AMSYAR BIN RIZALMAN",42,37,45,44,62,46,null,83,43,58],
+      ["3 BESTARI","IRSYAD HAZMI BIN IRWAN",94,88,92,92,89,100,null,91,99,80],
+      ["3 BESTARI","MIKAYLA NUR AL ISLAM BINTI MOHD ZULKIFLI",76,85,40,66,69,70,null,91,53,86],
+      ["3 BESTARI","MUHAMMAD AMMAR ARIF BIN MUHAMAD MUSA",76,50,90,68,78,82,null,91,97,78],
+      ["3 BESTARI","MUHAMMAD ARYYAN ZAKWAN BIN RUDY",84,67,60,44,78,44,null,84,53,80],
+      ["3 BESTARI","MUHAMMAD DASUKI AQEEL BIN MOHD DRA HIDAEL",82,36,41,76,61,56,null,69,48,40],
+      ["3 BESTARI","QAISER ADRIAN BIN MOHAMAD RIZDAUDIN",90,86,86,56,77,56,null,84,48,90],
+      ["3 BESTARI","MUHAMMAD IRFAN BIN ZULIKIFLI",64,97,71,60,71,70,null,86,75,72],
+      ["3 BESTARI","MUHAMMAD NUR FIRASH NAUFAL BIN NUR MISOURI",84,68,65,64,84,76,null,91,87,72],
+      ["3 BESTARI","MUHAMMAD QARIZH FAIQ BIN MUHAMMAD FARID",80,60,72,70,74,68,null,85,82,62],
+      ["3 BESTARI","MUHAMMAD RUSYAIDIN SUFI BIN RIDZANIZAM",76,56,75,82,73,70,null,90,63,72],
+      ["3 BESTARI","MUHAMMAD SYAFI BIN MOHD NAZRI",36,18,34,64,74,54,null,79,50,58],
+      ["3 BESTARI","MUSAID AYDIN BIN MOHD AZHAR",84,68,69,80,88,96,null,89,95,82],
+      ["3 BESTARI","NUR DHIA MIKAYLA BINTI DARSUKI",90,84,41,74,76,68,null,66,67,74],
+      ["3 BESTARI","NUR FAQIHAH HUSNA BINTI MD RIDUAN",86,74,82,72,83,88,null,88,98,80],
+      ["3 BESTARI","NUR FARISHA EMYRA BINTI JIMMY",76,52,48,82,76,58,null,82,50,76],
+      ["3 BESTARI","NUR UQA LATIFAH BINTI MOHD RAFAIL",24,45,32,34,68,56,null,91,63,40],
+      ["3 BESTARI","NURSYIFA ASHURA BINTI ZULSHAH",56,36,66,60,70,66,null,64,76,62],
+      ["3 BESTARI","NWUWAIRAH NOUR HUSNAA BINTI SAMSULBAHRI",88,51,86,56,79,90,null,79,95,76],
+      ["3 BESTARI","OLEZTY ELEXY OLIVER",64,90,55,66,67,null,62,87,56,66],
+      ["3 BESTARI","PUTRI NUR HIDAYATY AISYAH BINTI CORNELIUS",72,28,28,80,73,64,null,48,56,70],
+      ["3 BESTARI","SHAFIERAH NADIRAH BINTI ALBAT",62,40,44,52,80,66,null,87,55,76],
+      ["3 BESTARI","SHAMSUL ALISHA INARA BINTI SHAWAL",82,62,82,72,82,86,null,77,99,72],
+      ["3 BESTARI","SOLEHATUL NISA BINTI SAJID",66,57,34,78,47,62,null,72,74,70],
+      ["3 BESTARI","MUHAMMAD BIN MUHAMMAD HABIBULLAH",100,94,85,86,82,88,null,83,96,76],
+      // 3 CEMERLANG (37 Murid)
+      ["3 CEMERLANG","AIMAN BIN ABDULLAH",4,18,2,20,47,35,null,45,34,24],
+      ["3 CEMERLANG","AINUL MARDHIAH IZZARA SOFEA BINTI NORIZAL",56,60,34,26,68,38,null,78,48,80],
+      ["3 CEMERLANG","ALIF QAYYUM BIN FAIZAL",4,34,2,12,48,52,null,35,36,30],
+      ["3 CEMERLANG","ANIS ZAYANI BINTI JASMIN",58,65,14,18,66,70,null,73,47,40],
+      ["3 CEMERLANG","AYRA DANEEN BINTI AHMAD NAZRIE",12,18,20,14,59,68,null,83,55,38],
+      ["3 CEMERLANG","DANIYAL AHMAD BIN JAMALUDIN",14,51,40,26,52,63,null,83,76,38],
+      ["3 CEMERLANG","DATU MUHAMMAD AISY BAKAR BIN DATU ALI",14,24,32,14,50,39,null,78,24,26],
+      ["3 CEMERLANG","ERYNA BALQIS BINTI KADIR",76,87,78,34,66,89,null,72,86,72],
+      ["3 CEMERLANG","IMAN HANIF BIN AHMAD",58,52,44,44,76,64,null,75,52,68],
+      ["3 CEMERLANG","MIA NADIA BINTI PAIKAL",50,20,16,36,59,67,null,59,52,64],
+      ["3 CEMERLANG","MUHAMMAD AKIF BIN ABD. RAHIM",40,42,56,38,59,58,null,70,72,38],
+      ["3 CEMERLANG","MUHAMMAD AL FATEH AMIR BIN MUHAMAD",10,20,20,16,55,41,null,49,41,18],
+      ["3 CEMERLANG","MUHAMMAD ALQOWIY AMANULLAH BIN AMANSA",74,55,64,66,77,93,null,79,86,78],
+      ["3 CEMERLANG","MUHAMMAD AZMIRUL ZIQRI BIN E.D.RIDUAN",52,58,52,44,73,72,null,73,63,74],
+      ["3 CEMERLANG","MUHAMMAD FARHAN BIN SANSI",14,14,24,26,67,76,null,54,50,30],
+      ["3 CEMERLANG","MUHAMMAD HAZWAN BIN HASHIM",50,24,26,10,40,36,null,45,24,66],
+      ["3 CEMERLANG","MUHAMMAD IKRAM BIN ABDULLAH",48,20,52,20,68,69,null,85,41,42],
+      ["3 CEMERLANG","MUHAMMAD NUR AZRYAN FAYYADH BIN AZIZAN",6,18,50,14,71,69,null,51,56,48],
+      ["3 CEMERLANG","MUHAMMAD QHAL ZAFRAN BIN MAT NOOR @ MOHAMAD NO",84,60,76,64,82,94,null,85,88,82],
+      ["3 CEMERLANG","MUHAMMAD RAIHAN SHEM BIN ABDULLAH",28,26,28,34,72,74,null,83,39,70],
+      ["3 CEMERLANG","MUHAMMAD ZULAIDEAN BIN ABDUL SAIT",64,49,48,48,72,78,null,88,49,70],
+      ["3 CEMERLANG","NUR ALEEYA HUMAIRA BINTI MOHD. FAZLIE",74,82,64,30,75,66,null,67,42,74],
+      ["3 CEMERLANG","NUR ALIYA SHAZWANIE BINTI ABDULLAH",6,20,16,16,50,55,null,50,40,40],
+      ["3 CEMERLANG","NUR AYRA DEWINA BINTI MOHD AMIZAN",14,20,12,14,48,39,null,61,42,24],
+      ["3 CEMERLANG","NUR AZAHRA QAIRESHA BINTI ZAMALUL",82,84,52,50,82,72,null,82,57,88],
+      ["3 CEMERLANG","NUR IZZARRA QAREENA ARYYISAH BINTI SUDIRMAN",68,61,36,32,71,75,null,69,51,88],
+      ["3 CEMERLANG","NUR RAMADHANI AZZAHRA BINTI HAMIZI",32,26,24,16,47,46,null,78,38,40],
+      ["3 CEMERLANG","NUR UMAIRAH BINTI SAIFFUL",64,77,44,34,76,88,null,58,81,72],
+      ["3 CEMERLANG","PUTRI NUR AISYAH BINTI HAZMIN",70,43,58,42,71,87,null,93,70,76],
+      ["3 CEMERLANG","RAFFATHIAH RAIQAH BINTI AZMAN",44,20,24,22,63,70,null,75,14,54],
+      ["3 CEMERLANG","RAISYA ZULAIKHA BINTI RAMSHIDI",24,16,38,36,48,70,null,85,53,62],
+      ["3 CEMERLANG","SAHDIYA BINTI ABD JARID",60,45,60,38,79,73,null,67,57,68],
+      ["3 CEMERLANG","SHARIFFAH NUR YALINA INARA BINTI SHARIF MOHD YUSRI",82,88,80,46,73,89,null,75,95,86],
+      ["3 CEMERLANG","SITI AMIRDAH BINTI ABDULLAH",56,51,38,40,71,69,null,40,56,60],
+      ["3 CEMERLANG","SITI NUR A'AISYAH HUMAIRA BINTI MOHD. HAFIZ",66,94,78,48,70,56,null,74,49,88],
+      ["3 CEMERLANG","SYAFIENIE BINTI MOHD RAZIF",70,77,44,54,70,75,null,65,47,84],
+      ["3 CEMERLANG","ANIS AMALIN SOFIA BINTI AHMAD BAZLI AMIN",70,75,84,48,78,89,null,84,92,80]
+    ];
+
+    // ---------------------------------------------------------
+    // 5. DATASET UASA INDIVIDU MURID TAHAP 2 (GAMBAR 6 & 7 - 246 MURID)
+    // Format compact: [kelas, nama, ba, bi, bm, mt, pai, pjpk, pm, mz, psv, rbt, sn, sej]
+    // ---------------------------------------------------------
+    const uasaTahap2Raw = [
+      // 6 CEMERLANG (34 Murid)
+      ["6 CEMERLANG","ABDUL AZIM BIN ABDULLAH","D","E","D","E","D","C",null,"C","C","D","E","C"],
+      ["6 CEMERLANG","AFIYAH IZZARA BINTI MAZRUL","A","C","A","C","B","A",null,"C","A","B","C","C"],
+      ["6 CEMERLANG","AHMAD FURQAN AQASHAH BIN ASNIRA","D","D","C","D","C","B",null,"B","D","D","E","D"],
+      ["6 CEMERLANG","AIRY ZAFFRAN ZACKRY HAQIMIE BIN ABDULLAH","D","B","D","D","C","B",null,"B","C","D","E","C"],
+      ["6 CEMERLANG","AL AWWAL DARWISY BIN MOHD NAZRI","D","C","A","D","B","B",null,"A","B","C","D","C"],
+      ["6 CEMERLANG","AL SAMER BIN ADZMAL","C","D","B","D","C","B",null,"C","C","D","E","C"],
+      ["6 CEMERLANG","ALIMATUL ULIYA BINTI SANSI","D","E","C","D","C","B",null,"C","C","D","E","C"],
+      ["6 CEMERLANG","ALMUHAIMIN BIN ABDULLAH","C","E","C","D","D","C",null,"D","C","D","F","C"],
+      ["6 CEMERLANG","ARMAN BIN ABD JARID","D","E","B","D","C","C",null,"A","B","D","E","C"],
+      ["6 CEMERLANG","ARMINA BINTI ABDULLAH","C","D","B","D","C","B",null,"A","B","D","E","B"],
+      ["6 CEMERLANG","AYATUL HUSNA BINTI AZMAN","D","E","E","E","C","C",null,"D","B","D","F","D"],
+      ["6 CEMERLANG","DAYANG NUR RAADIAHYANTI ALAWIYAH BINTI JEFFRY","D","E","E","D","E","C",null,"D","A","D","E","E"],
+      ["6 CEMERLANG","HARIZZAN BIN HIRMAN","C","E","C","D","C","C",null,"D","D","D","E","D"],
+      ["6 CEMERLANG","IRFAN BIN HASLAN","D","E","E","D","F","C",null,"D","D","D","F","D"],
+      ["6 CEMERLANG","MAWAR BINTI ABDULLAH","D","E","B","D","D","C",null,"B","B","D","F","C"],
+      ["6 CEMERLANG","MOHAMMAD KHAIRULNIZAM BIN ABDULLAH","D","E","B","D","C","B",null,"B","A","D","E","C"],
+      ["6 CEMERLANG","MOHAMMAD SHAFIQQ BIN RAIMY","C","C","B","D","C","C",null,"B","D","B","C","C"],
+      ["6 CEMERLANG","MOHAMMAD SHAHRIZAL BIN IMBRAN","D","E","E","D","E","C",null,"C","D","D","F","D"],
+      ["6 CEMERLANG","MUHAMMAD AIDIL DARWISY BIN MOHD AMIZAN","C","E","C","D","B","C",null,"C","D","D","E","C"],
+      ["6 CEMERLANG","MUHAMMAD FARRELL KAMIL BIN JAMIL","C","D","B","C","E","A",null,"A","B","C","E","B"],
+      ["6 CEMERLANG","MUHAMMAD IRFAN ANAS BIN ABDULLAH","C","A","B","D","D","B",null,"A","D","C","C","C"],
+      ["6 CEMERLANG","MUHAMMAD SHAHZWAN BIN ABDULLAH","D","C","A","D","B","B",null,"A","B","C","D","C"],
+      ["6 CEMERLANG","MUHAMMAD ZIZAN BIN ABDULLAH","C","E","C","D","D","C",null,"B","B","D","E","C"],
+      ["6 CEMERLANG","NAWRIN SHUHADA BINTI ABDULLAH","D","E","E","E","D","C",null,"C","B","D","F","E"],
+      ["6 CEMERLANG","NORSAIDAH BINTI SAMEL","D","E","D","D","E","C",null,"B","C","D","F","D"],
+      ["6 CEMERLANG","NUR AINI BINTI ABDULLAH","C","D","A","D","C","B",null,"A","A","D","E","B"],
+      ["6 CEMERLANG","NUR ALIFATUL HUSNA BINTI GHUMAIDI","A","E","B","D","B","C",null,"B","A","D","E","B"],
+      ["6 CEMERLANG","NUR ALYA DANIA BINTI ALSAD","C","D","A","D","B","C",null,"A","B","D","E","C"],
+      ["6 CEMERLANG","NUR DHIA SYARAFANA BINTI ABDULLAH","B","A","A","D","C","C",null,"A","B","D","D","D"],
+      ["6 CEMERLANG","NUR ZARA QAIRA BINTI ZAMALUL","B","B","B","D","B","C",null,"B","B","D","E","B"],
+      ["6 CEMERLANG","NURHIDAYUH BINTI DAHLAN","D","E","B","E","D","C",null,"B","C","D","E","C"],
+      ["6 CEMERLANG","NURKHAISARAH BINTI ABDULLAH","D","D","B","D","B","B",null,"A","B","D","E","C"],
+      ["6 CEMERLANG","NURUDDIN BIN ABDULLAH","B","E","B","D","B","B",null,"A","B","C","E","C"],
+      ["6 CEMERLANG","SUFIEZAN BIN SURINO","D","A","B","D","B","C",null,"A","D","C","C","B"],
+      // 6 BESTARI (33 Murid)
+      ["6 BESTARI","ADELIA AMANDA BINTI MOHAMMADIAH","B","B","A","A","A","A",null,"B","A","B","C","B"],
+      ["6 BESTARI","AINUL MARDHIAH BINTI MOHD RIZMAN","B","A","A","D","B","A",null,"B","C","C","C","C"],
+      ["6 BESTARI","AMIRAH AQILAH BINTI MARZHUKHI","A","B","B","C","B","B",null,"B","A","D","B","C"],
+      ["6 BESTARI","ARRABELLA BINTI ABDUL RAQIB","D","C","B","D","B","A",null,"A","A","C","C","A"],
+      ["6 BESTARI","CHRIS NIGEL MALISON","D","C","B","C",null,"A","A","B","A","C","C","B"],
+      ["6 BESTARI","DATU SYAHRUDDIN BIN ABDULLAH","D","E","C","E","B","B",null,"B","C","D","E","C"],
+      ["6 BESTARI","EVAGELINE FAITH ELEXSON","C","A","C","C",null,"B","B","B","A","D","D","C"],
+      ["6 BESTARI","HAWA ADRIANA DANIA BINTI ISAMUDDIN","C","D","B","E","B","B",null,"B","A","C","E","D"],
+      ["6 BESTARI","IZZAT SHAHIRUL BIN ROZI","C","F","B","D","B","A",null,"B","A","D","E","B"],
+      ["6 BESTARI","JACK JONES JEREMY","C","A","B","C",null,"A","A","C","C","C","C","D"],
+      ["6 BESTARI","MARLON ROWEN REMMY","E","A","D","E",null,"C","B","B","C","D","E","D"],
+      ["6 BESTARI","MOHAMAD HAZIM BIN ROSLEY","C","F","E","E","C","C",null,"C","C","D","E","D"],
+      ["6 BESTARI","MUHAMAD ASHRAF BIN ABDULLAH","C","E","D","E","B","A",null,"C","C","D","D","C"],
+      ["6 BESTARI","MUHAMMAD ABQORY AMANULLAH BIN AMANSA","B","E","B","B","A","A",null,"A","A","B","C","A"],
+      ["6 BESTARI","MUHAMMAD AL FATEH BIN MUHAMMAD FAIZAL","B","D","B","D","B","A",null,"B","B","C","C","B"],
+      ["6 BESTARI","MUHAMMAD DAYYAN DAMIEN BIN MOHAMMAD NAJIB","C","B","A","D","A","A",null,"B","A","C","C","A"],
+      ["6 BESTARI","MUHAMMAD FARIS FALIQ BIN MOHD FAHMI HAFIZ","C","B","C","E","B","C",null,"B","B","D","D","D"],
+      ["6 BESTARI","MUHAMMAD HAFIZ BIN ABDULLAH","C","C","A","E","A","A",null,"B","A","C","C","B"],
+      ["6 BESTARI","MUHAMMAD NUR FIRASH RIZQI BIN NUR MISOURI","B","E","C","D","B","A",null,"B","A","C","D","A"],
+      ["6 BESTARI","MUHAMMAD RAYYAN ZIQRY BIN JAILANI","A","D","A","B","A","A",null,"B","C","B","C","C"],
+      ["6 BESTARI","MUHAMMAD SHAHFIEZUL AMIN BIN ABDUL SAIT","D","E","C","E","C","C",null,"B","B","D","E","C"],
+      ["6 BESTARI","MUHAMMAD ZUNNUR HAFIY BIN LAMAT","B","B","A","D","B","A",null,"B","C","B","B","B"],
+      ["6 BESTARI","MUJAHID AQIL BIN MOHD AZHAR","C","A","B","E","A","A",null,"C","C","B","C","B"],
+      ["6 BESTARI","NUR AINI BINTI AG.DAMIT","B","B","A","C","A","A",null,"B","B","C","C","C"],
+      ["6 BESTARI","NUR AINNARA SOFIA BINTI MUHAMAD MUSA","B","C","A","E","A","A",null,"B","A","C","C","C"],
+      ["6 BESTARI","NUR ARIANA NASUHA BINTI NASARUDDIN","C","B","B","C","A","B",null,"C","C","C","C","D"],
+      ["6 BESTARI","NUR IZYANIE QISTINA BINTI MOHD ERMANDY","A","A","A","D","A","A",null,"B","B","B","D","B"],
+      ["6 BESTARI","NUR NAJUA NAZIRAH BINTI HASHIM","A","B","B","B","A","A",null,"B","A","B","B","A"],
+      ["6 BESTARI","NUR SAIDATULNAFISA AQILAH BINTI SUDIRMAN","B","B","B","D","A","A",null,"A","B","C","C","B"],
+      ["6 BESTARI","NUR SYIFA MIKAYLA BINTI ABDULLAH","A","B","B","C","A","A",null,"B","A","B","D","B"],
+      ["6 BESTARI","NURUL AS-SYIFA BINTI ABDULLAH","B","B","B","D","B","A",null,"B","B","C","C","C"],
+      ["6 BESTARI","RANIA MAISARA BINTI RAMSHIDI","B","B","B","C","A","A",null,"A","B","C","C","B"],
+      ["6 BESTARI","RAUDHATUL SYUHADA BINTI RIDZANIZAM","B","B","A","C","B","A",null,"A","A","C","C","C"],
+      // 6 AMANAH (35 Murid)
+      ["6 AMANAH","ABDULLAH MAARIF BIN ZULKIFLI","A","A","A","A","A","A",null,"B","A","A","A","A"],
+      ["6 AMANAH","AHMAD ZAYYAN KHAYYRI BIN JASMIN","A","A","A","C","A","A",null,"B","A","B","B","A"],
+      ["6 AMANAH","AINNUR AREYANA BINTI BOLHASNEY","B","A","B","C","A","A",null,"B","A","C","C","C"],
+      ["6 AMANAH","DANIAL ARZIKI BIN MOHD ARRAUWI","A","A","A","B","A","A",null,"A","A","B","C","B"],
+      ["6 AMANAH","DANISH AZHAR BIN MOHD ARRAUWI","B","A","A","B","A","A",null,"A","A","B","B","A"],
+      ["6 AMANAH","HANA HUMAIRA BINTI MOHD NAZRI","B","A","A","E","A","A",null,"A","A","C","C","B"],
+      ["6 AMANAH","HUDA HUMAIRAH BINTI HAFIZ HAKIM","A","A","A","C","A","A",null,"B","A","B","C","B"],
+      ["6 AMANAH","IZDIHAR BIN IZMANTO","D","E","E","E","C","C",null,"A","C","D","E","C"],
+      ["6 AMANAH","MOHAMMAD AFFAN HAKIMI BIN ABDULLAH","B","B","A","C","A","B",null,"A","A","B","C","C"],
+      ["6 AMANAH","MOHAMMAD HAZMI BIN HAZMIN","C","C","A","E","A","A",null,"B","C","B","C","B"],
+      ["6 AMANAH","MOHAMMAD QASHA ADRIAN BIN JUMADI","B","A","B","D","A","A",null,"A","C","C","D","B"],
+      ["6 AMANAH","MUHAMMAD AL AMEEN BIN MD RIZAL","C","B","B","D","A","A",null,"B","B","C","D","B"],
+      ["6 AMANAH","MUHAMMAD ALFATTEH BIN SAPAWI","A","C","A","C","A","A",null,"B","A","B","B","B"],
+      ["6 AMANAH","MUHAMMAD ALIFF BIN AHAD","C","D","B","D","B","A",null,"C","B","B","D","C"],
+      ["6 AMANAH","MUHAMMAD BAIHAQI BIN ISMAIL","B","B","A","C","A","A",null,"A","B","D","D","B"],
+      ["6 AMANAH","MUHAMMAD DANISH ADHA BIN DURIMAN","B","B","B","D","A","A",null,"B","B","C","C","B"],
+      ["6 AMANAH","MUHAMMAD HARITH SAFWAN BIN ASLIZAN","B","B","A","E","A","A",null,"B","A","B","C","C"],
+      ["6 AMANAH","MUHAMMAD HAZIQ RAYYAN BIN HALIM","D","B","C","D","A","A",null,"B","C","C","C","B"],
+      ["6 AMANAH","MUHAMMAD NUR ASHRYAN IRDANI BIN AZIZAN","A","B","B","C","A","A",null,"B","A","B","C","B"],
+      ["6 AMANAH","MUHAMMAD RAFIQI MIKAIL BIN MOHD DRA HIDAEL","C","A","B","F","B","B",null,"B","A","C","E","C"],
+      ["6 AMANAH","MUHAMMAD RAYYAN ADAM BIN HAZIZUL","A","B","B","D","A","A",null,"B","B","C","D","A"],
+      ["6 AMANAH","MUHAMMAD YUSUF BIN ARMAN","C","B","C","E","B","A",null,"B","A","D","E","C"],
+      ["6 AMANAH","NIK ALI BIN NIK AFANDI","B","C","B","C","A","A",null,"B","C","C","C","C"],
+      ["6 AMANAH","NUR ADRIANA BINTI AZIZAM","B","B","B","D","A","A",null,"B","B","C","C","C"],
+      ["6 AMANAH","NUR ADRIANA BINTI AZIZAM","B","B","A","C","A","A",null,"B","A","C","D","C"],
+      ["6 AMANAH","NUR ANDHIKA MIQAILA DARWISHA BINTI ABDULLAH","C","A","B","E","B","A",null,"B","A","C","E","C"],
+      ["6 AMANAH","NUR HIDAYAH BINTI MAHAL","A","C","A","C","A","A",null,"A","B","C","C","B"],
+      ["6 AMANAH","NUR JANNAH ZAHRAH BINTI JAMBERI","B","D","B","D","B","B",null,"B","C","C","C","D"],
+      ["6 AMANAH","NUR SAFA SAFIYYAH BINTI MOHD. SOBREE","C","B","A","E","A","A",null,"B","A","D","D","D"],
+      ["6 AMANAH","PUTRI BATRISYA AZ-ZHARA BINTI HENDRIKSEN PANAI","B","A","A","C","A","A",null,"A","A","B","C","A"],
+      ["6 AMANAH","RAUDHATIL FARAAWULAH BINTI RAMDAN","B","A","A","A","A","B",null,"B","A","B","B","C"],
+      ["6 AMANAH","SARAH BINTI ISMAIL","A","A","A","C","A","A",null,"B","A","B","C","B"],
+      ["6 AMANAH","SERI IRIS BINTI ABDULLAH","D","A","A","C","B","A",null,"A","A","C","C","C"],
+      ["6 AMANAH","SHANEEZ ELYANI BINTI MUHAMAD SHAM","D","A","B","C","A","A",null,"B","A","C","F","C"],
+      ["6 AMANAH","SULAIMAN BIN LOKMAN","D","D","E","E","B","B",null,"C","B","E","E","D"],
+      // 5 BESTARI (37 Murid)
+      ["5 BESTARI","ALANNA HAWA BINTI ALIFFIKRY","A","A","B","B","A","A",null,"A","A","B","B","B"],
+      ["5 BESTARI","ALFARIAN BIN ALFIAN","D","B","C","E","C","C",null,"B","B","C","E","E"],
+      ["5 BESTARI","AMMARA MIKAYLA BINTI AILDY","C","E","D","E","B","B",null,"B","C","B","E","E"],
+      ["5 BESTARI","ANEESA BASYIRAH BINTI MUHAMMAD FAIZAL","A","B","B","D","A","A",null,"A","A","B","D","B"],
+      ["5 BESTARI","AQEEL RAYYAN BIN KAMAL","A","A","B","C","A","A",null,"A","A","B","D","B"],
+      ["5 BESTARI","ARIFF MUZAFFAR BIN ALWIE","A","B","B","D","A","A",null,"B","A","B","D","B"],
+      ["5 BESTARI","AZFA BAKHTIAR BIN BASIR","A","B","B","D","B","B",null,"B","B","B","C","C"],
+      ["5 BESTARI","CHEALSEA ELYVIATEFFY JEFFSON","C","B","E","D",null,"B","A","C","B","C","E","D"],
+      ["5 BESTARI","FATIN NUR NATASHA BINTI MOHD FARIDZ","A","D","C","D","B","A",null,"A","A","B","D","D"],
+      ["5 BESTARI","GARETT RYCCO MATLEH","D","C","A","C",null,"A","A","B","B","C","E","C"],
+      ["5 BESTARI","HUSNA BINTI FAIZAL","A","A","A","D","B","B",null,"A","A","B","D","C"],
+      ["5 BESTARI","IMRAN YASEER BIN IRWAN","A","B","B","D","A","A",null,"A","B","B","D","B"],
+      ["5 BESTARI","IRFAN IRSYAD BIN KAMARUDIN","A","B","B","E","A","A",null,"B","B","B","D","C"],
+      ["5 BESTARI","JOSPHER JACQUILL JEREMY","E","B","B","D",null,"B","B","B","B","C","E","D"],
+      ["5 BESTARI","MUHAMMAD ADAM DANIEL BIN BAKRI","C","D","C","D","C","B",null,"A","A","B","D","D"],
+      ["5 BESTARI","MUHAMMAD AFIQ IKHWAN BIN MOHAMAD AYUB","C","C","B","B","B","A",null,"A","B","B","E","C"],
+      ["5 BESTARI","MUHAMMAD AWEERA PUTERA BIN MOHD JAMEEL","A","B","A","B","A","A",null,"A","A","C","B","B"],
+      ["5 BESTARI","MUHAMMAD DZAFRAN ASHANIF BIN ANUAR","B","C","C","D","A","A",null,"B","B","C","D","C"],
+      ["5 BESTARI","MUHAMMAD DZARIF BIN MOHAMMADIAH","A","A","B","B","A","A",null,"B","B","B","C","C"],
+      ["5 BESTARI","MUHAMMAD ERRY ZAKHWAN BIN JERRYN","A","B","B","D","A","B",null,"B","B","B","D","B"],
+      ["5 BESTARI","MUHAMMAD IMAN ARYAN BIN AZA AZRIN","A","B","A","D","A","A",null,"B","B","A","D","C"],
+      ["5 BESTARI","MUHAMMAD QAYYUM BIN MOKHTARUDDIN","B","B","B","D","A","A",null,"A","A","B","D","C"],
+      ["5 BESTARI","MUHAMMAD RAYYAN RAYKHAL BIN MAT NOOR","A","B","B","D","A","A",null,"B","A","B","E","C"],
+      ["5 BESTARI","MUHAMMAD ZAGHWAN BIN SOBRI","A","B","A","D","A","A",null,"B","B","B","D","B"],
+      ["5 BESTARI","NUR AFROZA SYASYA BINTI MOHD DRA HIDAEL","A","A","A","C","A","A",null,"A","A","B","B","B"],
+      ["5 BESTARI","NUR FARZANA AZWA BINTI SANUSI","A","B","A","D","A","A",null,"A","A","B","E","D"],
+      ["5 BESTARI","NUR FATHIYAH AR RAHMANI BINTI AWANG SATIA","A","A","A","C","A","A",null,"B","A","B","D","B"],
+      ["5 BESTARI","NUR HIKMAH AQILAH BINTI MD ARAS","B","E","B","D","A","C",null,"D","B","B","E","D"],
+      ["5 BESTARI","NURSHAFIY QAIRA BINTI RAFIZAL","A","D","B","B","A","A",null,"B","A","B","E","D"],
+      ["5 BESTARI","NURUL IZYAN SYAMIMI BINTI MOHD SYAHIR","C","A","D","B","B","A",null,"B","B","B","E","D"],
+      ["5 BESTARI","NWUWAIRAH NOUR HASANNAH BINTI SAMSULBAHRI","A","B","A","A","A","A",null,"A","A","C","B","B"],
+      ["5 BESTARI","PUTRI NUR KAMALIA SAMARA AISHA BINTI KAMAL","D","D","B","D","C","B",null,"B","A","C","E","D"],
+      ["5 BESTARI","QAISARA AMMARA BINTI MOHAMAD KHAIRUL","B","B","B","D","B","A",null,"A","A","B","D","D"],
+      ["5 BESTARI","RAFFATHIHAH RAUDHAH BINTI AZMAN","B","C","A","D","A","A",null,"A","A","B","E","D"],
+      ["5 BESTARI","RYAN CASEY RAYN COSMAS","D","E","D","E",null,"B","C","D","C","C","F","E"],
+      ["5 BESTARI","THARIQ YAHYA BIN ZAKARIA","B","B","A","C","B","B",null,"B","B","B","E","C"],
+      ["5 BESTARI","UWAIS AL-QARNI BIN MUHAMMAD JAMIL","A","B","A","D","B","A",null,"B","B","D","D","D"],
+      // 5 CEMERLANG (34 Murid)
+      ["5 CEMERLANG","ADELIA MYESHA HAWANI BINTI SHAH RIZAL","D","D","D","E","D","B",null,"B","A","C","D","C"],
+      ["5 CEMERLANG","AIRA ZHUFAIRAH FARHANIS BINTI MOHD HILMIE","B","B","A","D","B","A",null,"B","A","C","D","B"],
+      ["5 CEMERLANG","AMAN MANNAN BIN MADLI","B","C","C","D","C","B",null,"B","A","D","D","C"],
+      ["5 CEMERLANG","ARIQAH MAISARAH BINTI MOHD FEKHRI","B","B","A","D","A","A",null,"B","B","D","D","C"],
+      ["5 CEMERLANG","DHIYA RAUDHAH BINTI JAMALUDIN","C","C","C","D","B","B",null,"C","B","D","E","D"],
+      ["5 CEMERLANG","FAZRINA BINTI ABDULLAH","A","B","C","D","A","A",null,"B","B","B","C","C"],
+      ["5 CEMERLANG","HNIRA BINTI BASIR","D","F","E","E","D","C",null,"E","B","D","F","E"],
+      ["5 CEMERLANG","IMAAN HIKARI AZZAHRA BINTI ABDUL AZIZ","C","C","C","D","C","C",null,"B","B","D","E","E"],
+      ["5 CEMERLANG","MOHAMAD ADIB BIN JAMADIL","C","F","E","E","C","C",null,"D","B","D","F","C"],
+      ["5 CEMERLANG","MOHAMAD QUE SHAFIQ BIN MOHD EQFAR EFFENDI","A","B","C","D","A","A",null,"B","B","C","D","C"],
+      ["5 CEMERLANG","MUHAMAD AQASHA BIN MOHD.YAZID","E","C","C","D","C","B",null,"B","B","D","D","D"],
+      ["5 CEMERLANG","MUHAMMAD ADAM DANISH BIN ABDULLAH","B","C","B","D","A","A",null,"A","B","D","E","B"],
+      ["5 CEMERLANG","MUHAMMAD ADHA REZZA BIN MD AZIBULAH","B","D","C","C","B","A",null,"A","B","C","D","B"],
+      ["5 CEMERLANG","MUHAMMAD FAAEQ DAIYAN BIN ASHADI","C","F","F","E","E","D",null,"E","A","D","F","E"],
+      ["5 CEMERLANG","MUHAMMAD IRFAN BIN ABDULLAH","D","E","D","D","D","B",null,"D","B","D","D","C"],
+      ["5 CEMERLANG","MUHAMMAD KAZIM BIN AMEEN KAIDAL","B","C","A","D","A","A",null,"B","B","B","D","B"],
+      ["5 CEMERLANG","MUHAMMAD NAZIRUL AZRI BIN E.D.RIDUAN","D","E","D","D","B","B",null,"B","B","D","C","D"],
+      ["5 CEMERLANG","MUHAMMAD NUH ZULHIMI BIN ISMAIL","D","E","D","D","D","C",null,"D","B","D","E","D"],
+      ["5 CEMERLANG","NORASYIFFA NABILA BINTI SHAHRIL","A","A","C","D","A","A",null,"C","A","C","D","B"],
+      ["5 CEMERLANG","NUR ALISHA SAFIYYAH BINTI MOHAMAD AZMI","A","C","B","D","B","B",null,"B","A","C","D","B"],
+      ["5 CEMERLANG","NUR FATHIYA HANA BINTI MOHAMMAD KHAIRUL ISHAM","C","F","F","E","C","B",null,"B","B","C","F","C"],
+      ["5 CEMERLANG","NUR MUHAMMAD AL RIEZQULLAH BIN NUR AL AMIN","A","D","C","D","A","B",null,"B","A","D","E","C"],
+      ["5 CEMERLANG","NUR NABILA ALWANI BINTI MOHD AZMIE KHAN","A","C","B","C","A","A",null,"C","A","C","D","C"],
+      ["5 CEMERLANG","NUR SYAZRIANA BINTI MOHAMMAD MASRI","B","C","A","D","B","B",null,"B","B","C","E","B"],
+      ["5 CEMERLANG","NUR UMAIRAH QAIRINA BINTI JASMI","B","C","C","E","B","B",null,"A","B","C","E","C"],
+      ["5 CEMERLANG","NURULAIN IMAN QAIRINA BINTI MAN ARIFIN","C","C","C","D","B","C",null,"B","A","C","E","C"],
+      ["5 CEMERLANG","PUTRI NUR ZAHRA BINTI MOHD RIZAN","C","E","D","D","E","C",null,"A","A","D","E","C"],
+      ["5 CEMERLANG","RABIATUL ADAWIYAH BINTI MUHAMAD","C","E","E","E","D","C",null,"C","B","D","E","E"],
+      ["5 CEMERLANG","SHERMINA BINTI ABDULLAH","B","F","E","E","E","C",null,"C","B","D","F","D"],
+      ["5 CEMERLANG","SYERHANA BINTI BAGDAD","D","F","E","E","D","B",null,"C","A","D","F","D"],
+      ["5 CEMERLANG","TAZ MAHAL BINTI AJAY","D","C","E","E","C","B",null,"C","B","D","F","C"],
+      ["5 CEMERLANG","UMMAYRA BINTI SANSIR","C","E","C","E","A","B",null,"D","A","D","E","C"],
+      ["5 CEMERLANG","WAN EZZARA AISYAH BINTI WAN MOHAMAD SYARIF","C","E","D","E","A","A",null,"D","B","D","E","C"],
+      ["5 CEMERLANG","WAZIF IRSYAD BIN ABDULLAH","B","D","B","C","A","A",null,"A","A","D","E","C"],
+      // 4 CEMERLANG (36 Murid - BM/BI/MT/SN are TD per Image 7 & Image 2)
+      ["4 CEMERLANG","ADRA RABBIYA AQMA BINTI MASRIZAL","C","TD","TD","TD","B","B",null,"A","A","D","TD","C"],
+      ["4 CEMERLANG","ADRIAN BIN ABDULLAH","C","TD","TD","TD","C","B",null,"B","A","D","TD","D"],
+      ["4 CEMERLANG","AHMAD SAIF BIN GHUMAIDI","C","TD","TD","TD","D","C",null,"D","C","D","TD","E"],
+      ["4 CEMERLANG","AINA AFIQAH BINTI MARZHUKHI","A","TD","TD","TD","C","A",null,"A","A","B","TD","C"],
+      ["4 CEMERLANG","ALIFHAN ANWARI BIN ANUAR","C","TD","TD","TD","C","C",null,"C","C","D","TD","C"],
+      ["4 CEMERLANG","ANA RAFIAH KHAIRUNISAH HAIRUL BINTI ABDULLAH","B","TD","TD","TD","C","B",null,"A","B","C","TD","C"],
+      ["4 CEMERLANG","AQIF NAZMIE BIN AZRIZAN","C","TD","TD","TD","D","B",null,"B","B","C","TD","D"],
+      ["4 CEMERLANG","IMAN FIRDAUS BIN FAZLI","C","TD","TD","TD","C","B",null,"B","B","C","TD","C"],
+      ["4 CEMERLANG","KHALIESAH AWFIYAH BINTI ABDULLAH","D","TD","TD","TD","C","D",null,"B","B","C","TD","C"],
+      ["4 CEMERLANG","MOHAMMAD BASIR RAIHAN BIN NORMAIZOL","D","TD","TD","TD","E","B",null,"D","C","D","TD","E"],
+      ["4 CEMERLANG","MOHAMMAD FAIZIN ZEAL BIN FAIZAL","D","TD","TD","TD","C","C",null,"D","C","C","TD","E"],
+      ["4 CEMERLANG","MOHAMMAD HARRAZ AQWALL BIN ABDULLAH","D","TD","TD","TD","D","D",null,"D","B","D","TD","E"],
+      ["4 CEMERLANG","MOHAMMAD SHARUL BIN JIMMY","D","TD","TD","TD","E","C",null,"D","B","D","TD","E"],
+      ["4 CEMERLANG","MUHAMAD AZYAN MIKAEL BIN AZLAN","D","TD","TD","TD","D","C",null,"E","B","D","TD","D"],
+      ["4 CEMERLANG","MUHAMAD BEDAH BIN ABDUL RASHID","E","TD","TD","TD","D","C",null,"D","C","D","TD","E"],
+      ["4 CEMERLANG","MUHAMAD EMANSHAH BIN MOHD KHAIRUL","E","TD","TD","TD","E","C",null,"D","A","D","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD ADIB ZAFWAN BIN DIDIH","B","TD","TD","TD","E","B",null,"B","B","D","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD AIDIL BIN ABD. RAHIM","D","TD","TD","TD","E","B",null,"D","C","C","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD AMMAR ASYRAF BIN MOHD SYAHROL EZZUNN","E","TD","TD","TD","E","C",null,"E","B","D","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD AQMAL RAYYAN BIN ARIF","A","TD","TD","TD","B","A",null,"E","D","C","TD","C"],
+      ["4 CEMERLANG","MUHAMMAD FIRDAUS BIN MOHD FITRI","D","TD","TD","TD","E","C",null,"E","B","D","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD HAFIZ BIN ABDULLAH","D","TD","TD","TD","E","C",null,"E","C","D","TD","E"],
+      ["4 CEMERLANG","MUHAMMAD NURSYAFEZZIE BIN MOHD NURSYAFERRIE","C","TD","TD","TD","C","B",null,"C","A","C","TD","D"],
+      ["4 CEMERLANG","MUZIMAR BIN MARJAN","C","TD","TD","TD","C","C",null,"D","B","D","TD","E"],
+      ["4 CEMERLANG","NASRI BIN IBNU","D","TD","TD","TD","E","C",null,"E","A","D","TD","E"],
+      ["4 CEMERLANG","NUR AQILA FARIZAH BINTI ZAINI","C","TD","TD","TD","C","B",null,"C","B","C","TD","D"],
+      ["4 CEMERLANG","NUR FARA NACKESHA BINTI INNOH ISNANG JOE","B","TD","TD","TD","B","B",null,"B","B","C","TD","D"],
+      ["4 CEMERLANG","NUR FATHIA UMAIRA BINTI FADZILAH","C","TD","TD","TD","C","B",null,"E","B","C","TD","E"],
+      ["4 CEMERLANG","NUR QAIRA ZAHRA BINTI MOHD FAIZAL","C","TD","TD","TD","A","B",null,"B","A","C","TD","C"],
+      ["4 CEMERLANG","NUR QAISARA CATHERINA BINTI JUMADI","D","TD","TD","TD","C","B",null,"C","C","D","TD","E"],
+      ["4 CEMERLANG","NUR SARAH SYUHADAH BINTI MOHD. SOBREE","C","TD","TD","TD","C","B",null,"C","B","C","TD","D"],
+      ["4 CEMERLANG","NURHIDAYAH BINTI ABDULLAH","E","TD","TD","TD","D","B",null,"D","A","D","TD","D"],
+      ["4 CEMERLANG","NURLARA UMAIRAH BINTI AWANG DAMIT","B","TD","TD","TD","C","B",null,"B","B","C","TD","D"],
+      ["4 CEMERLANG","PUTRI NUR TASHMIRAH BINTI HAZMIN","B","TD","TD","TD","B","A",null,"B","A","C","TD","C"],
+      ["4 CEMERLANG","RAYHAN NUR QHADIJAH BINTI ZAINUDDIN","B","TD","TD","TD","C","B",null,"C","A","C","TD","D"],
+      ["4 CEMERLANG","RIA RAISSA BINTI MOHAMMAD NORIZAM","C","TD","TD","TD","C","B",null,"C","A","D","TD","D"],
+      // 4 BESTARI (37 Murid - BM/BI/MT/SN are TD per Image 7 & Image 2)
+      ["4 BESTARI","AFRIZAL BIN ABDULLAH","A","TD","TD","TD","C","A",null,"A","B","B","TD","C"],
+      ["4 BESTARI","AHMAD KHAIR BIN ABDULLAH","B","TD","TD","TD","C","B",null,"A","B","B","TD","B"],
+      ["4 BESTARI","ASHRAFF BIN ARIFF","A","TD","TD","TD","B","B",null,"A","A","B","TD","A"],
+      ["4 BESTARI","DANISH FIRDAUS BIN ABDULLAH AFFIQ","A","TD","TD","TD","B","A",null,"A","A","B","TD","B"],
+      ["4 BESTARI","DEQUEENIE CAITLYN DABIESON","E","TD","TD","TD",null,"B","B","C","C","C","TD","E"],
+      ["4 BESTARI","FATHIMAH AZ ZAHRA BINTI MUHAMMAD FARID","A","TD","TD","TD","C","A",null,"A","A","A","TD","B"],
+      ["4 BESTARI","IRFAN AFFANDI BIN ROSMAINI","A","TD","TD","TD","C","A",null,"A","A","B","TD","C"],
+      ["4 BESTARI","IVORISYA BINTI MAURICE","B","TD","TD","TD",null,"A","A","A","A","B","TD","A"],
+      ["4 BESTARI","IZZATI SHAZWANA BINTI ROZI","D","TD","TD","TD","B","B",null,"A","B","B","TD","D"],
+      ["4 BESTARI","IZZATI SHAZWANI BINTI ROZI","A","TD","TD","TD","B","A",null,"B","B","A","TD","C"],
+      ["4 BESTARI","KHALEEL IRSYAD BIN KAMARUL IDZMAL","A","TD","TD","TD","B","A",null,"A","A","B","TD","B"],
+      ["4 BESTARI","LAVENTS LAWERNCE","D","TD","TD","TD",null,"B","A","B","B","B","TD","C"],
+      ["4 BESTARI","MAYANG HAFIZAH BINTI MOHD RAFAIL","C","TD","TD","TD","B","A",null,"A","A","A","TD","B"],
+      ["4 BESTARI","MOHAMMAD IZZUL MUZAFFAR BIN REZUAN","C","TD","TD","TD","C","A",null,"A","A","B","TD","B"],
+      ["4 BESTARI","MUHAMAD SHAFIQ BIN ABDUL MALIK","D","TD","TD","TD","C","B",null,"A","B","C","TD","E"],
+      ["4 BESTARI","MUHAMMAD AIZAD ASYRAFF BIN NASARUDDIN","B","TD","TD","TD","B","A",null,"A","A","A","TD","C"],
+      ["4 BESTARI","MUHAMMAD ALIF NAWFAL BIN ABD. KAHAR","B","TD","TD","TD","B","A",null,"A","B","B","TD","C"],
+      ["4 BESTARI","MUHAMMAD DARWISH ZAFRAN BIN JOHARI","D","TD","TD","TD","D","C",null,"B","B","B","TD","E"],
+      ["4 BESTARI","MUHAMMAD DZULQORNAIN BIN MOHAMMAD FIRDAUS","A","TD","TD","TD","A","A",null,"C","A","A","TD","B"],
+      ["4 BESTARI","MUHAMMAD FADIL FADLI BIN NASSIR","B","TD","TD","TD","B","A",null,"B","B","A","TD","C"],
+      ["4 BESTARI","MUHAMMAD FAREEZ QUE ADRYAN BIN WERA","C","TD","TD","TD","D","C",null,"B","B","B","TD","D"],
+      ["4 BESTARI","MUHAMMAD NUR FIRASH MIKHAIL BIN NUR MISOURI","C","TD","TD","TD","C","A",null,"B","A","A","TD","D"],
+      ["4 BESTARI","MUHAMMAD RAFIF BIN MOHD SUFFIAN","C","TD","TD","TD","D","C",null,"A","C","C","TD","C"],
+      ["4 BESTARI","MUHAMMAD YAZID BIN AGUSTRIYONO","B","TD","TD","TD","B","A",null,"A","A","A","TD","B"],
+      ["4 BESTARI","NIA RAMADHANI BINTI MADLI","C","TD","TD","TD","D","C",null,"B","C","B","TD","E"],
+      ["4 BESTARI","NOAH ERFAN WADI BIN ABDULLAH","B","TD","TD","TD","B","A",null,"A","A","B","TD","C"],
+      ["4 BESTARI","NUR AMIRAH BINTI LOKMAN","D","TD","TD","TD","D","B",null,"B","B","D","TD","E"],
+      ["4 BESTARI","NUR ARIANA AZZAHRA BINTI AZA AZRIN","B","TD","TD","TD","B","A",null,"B","B","B","TD","C"],
+      ["4 BESTARI","NUR HARIZAH BINTI HARUN","B","TD","TD","TD","C","B",null,"A","B","B","TD","C"],
+      ["4 BESTARI","NUR IZZATY QISTINA BINTI MOHD ERMANDY","A","TD","TD","TD","A","A",null,"A","B","A","TD","A"],
+      ["4 BESTARI","NUR ZULAIQA UMAIRAH BINTI ELIAS","B","TD","TD","TD","B","B",null,"B","B","C","TD","E"],
+      ["4 BESTARI","PUTRI NUR ATHIYATUL NADHIRAH BINTI HENDRIKSEN PANAI","B","TD","TD","TD","B","A",null,"A","A","A","TD","B"],
+      ["4 BESTARI","RIZQ ESHAL BIN RAIME","C","TD","TD","TD","C","B",null,"A","A","A","TD","C"],
+      ["4 BESTARI","SHAFIEE NAIM DANIEL BIN ALBAT","C","TD","TD","TD","B","A",null,"A","B","B","TD","C"],
+      ["4 BESTARI","UQASHA BIN SANSIR","C","TD","TD","TD","B","A",null,"A","B","A","TD","C"],
+      ["4 BESTARI","WAFA INSYIRAH BINTI SAPAWI","A","TD","TD","TD","B","A",null,"A","A","A","TD","B"],
+      ["4 BESTARI","ZHAREEF NUFAIL BIN ZASNI","C","TD","TD","TD","B","A",null,"A","A","A","TD","B"]
+    ];
+
+    // ---------------------------------------------------------
+    // 6. DATASET MPT4 2026 (GAMBAR 4 - 73 MURID TAHUN 4)
+    // Format: [kelas, bil, nama, kp, bm, bi, mt, sn]
+    // ---------------------------------------------------------
+    const mpt4Raw = [
+      // 4 BESTARI (37 Murid)
+      ["4 BESTARI",1,"AFRIZAL BIN ABDULLAH","161205150027",66,40,12,36],
+      ["4 BESTARI",2,"AHMAD KHAIR BIN ABDULLAH","160719150089",54,72,62,48],
+      ["4 BESTARI",3,"ASHRAFF BIN ARIFF","160916120225",80,62,58,40],
+      ["4 BESTARI",4,"DANISH FIRDAUS BIN ABDULLAH AFFIQ","160613150101",66,92,38,58],
+      ["4 BESTARI",5,"DEQUEENIE CAITLYN DABIESON","160119120994",38,30,4,50],
+      ["4 BESTARI",6,"FATHIMAH AZ ZAHRA BINTI MUHAMMAD FARID","161224102194",78,82,64,82],
+      ["4 BESTARI",7,"IRFAN AFFANDI BIN ROSMAINI","160311150085",76,70,48,62],
+      ["4 BESTARI",8,"IVORISYA BINTI MAURICE","160813150018",90,88,64,60],
+      ["4 BESTARI",9,"IZZATI SHAZWANA BINTI ROZI","160527150076",34,20,26,40],
+      ["4 BESTARI",10,"IZZATI SHAZWANI BINTI ROZI","160527150084",30,22,20,40],
+      ["4 BESTARI",11,"KHALEEL IRSYAD BIN KAMARUL IDZMAL","160721120313",22,48,12,28],
+      ["4 BESTARI",12,"LAVENTS LAWERNCE","160208150159",68,34,16,60],
+      ["4 BESTARI",13,"MAYANG HAFIZAH BINTI MOHD RAFAIL","160615120088",82,84,26,52],
+      ["4 BESTARI",14,"MOHAMMAD IZZUL MUZAFFAR BIN REZUAN","160105150017",48,82,38,52],
+      ["4 BESTARI",15,"MUHAMAD SHAFIQ BIN ABDUL MALIK MUHAMMAD AIZ","160321150097",34,26,18,52],
+      ["4 BESTARI",16,"MUHAMMAD AIZAD ASYRAFF BIN NASARUDDIN","160114150027",38,82,24,62],
+      ["4 BESTARI",17,"MUHAMMAD ALIF NAWFAL BIN ABD. KAHAR","161001150017",62,40,42,60],
+      ["4 BESTARI",18,"MUHAMMAD DARWISH ZAFRAN BIN JOHARI MUHAMMA","161108130235",18,74,12,30],
+      ["4 BESTARI",19,"MUHAMMAD DZULQORNAIN BIN MOHAMMAD FIRDAU","161006010507",72,34,48,54],
+      ["4 BESTARI",20,"MUHAMMAD FADIL FADLI BIN NASSIR","160422150037",54,30,10,44],
+      ["4 BESTARI",21,"MUHAMMAD FAREEZ QUE ADRYAN BIN WERA MUHAMM","160507150079",20,26,14,16],
+      ["4 BESTARI",22,"MUHAMMAD NUR FIRASH MIKHAIL BIN NUR MISOURI","160724020203",36,20,10,24],
+      ["4 BESTARI",23,"MUHAMMAD RAFIF BIN MOHD SUFFIAN","161125150043",16,40,12,26],
+      ["4 BESTARI",24,"MUHAMMAD YAZID BIN AGUSTRIYONO","160729120377",80,58,24,48],
+      ["4 BESTARI",25,"NIA RAMADHANI BINTI MADLI","160630150074",22,36,4,24],
+      ["4 BESTARI",26,"NOAH ERFAN WADI BIN ABDULLAH","160120120625",50,84,22,30],
+      ["4 BESTARI",27,"NUR AMIRAH BINTI LOKMAN","160924150088",26,26,22,22],
+      ["4 BESTARI",28,"NUR ARIANA AZZAHRA BINTI AZA AZRIN","161224150014",58,64,20,30],
+      ["4 BESTARI",29,"NUR HARIZAH BINTI HARUN","161208150022",56,62,22,36],
+      ["4 BESTARI",30,"NUR IZZATY QISTINA BINTI MOHD ERMANDY","160929121710",84,82,68,68],
+      ["4 BESTARI",31,"NUR ZULAIQA UMAIRAH BINTI ELIAS PUTRI NUR ATHIYA","160602150034",56,18,22,36],
+      ["4 BESTARI",32,"PUTRI NUR ATHIYATUL NADHIRAH BINTI HENDRIKSEN P","161230150010",80,82,30,46],
+      ["4 BESTARI",33,"RIZQ ESHAL BIN RAIME","161112120603",58,40,10,46],
+      ["4 BESTARI",34,"SHAFIEE NAIM DANIEL BIN ALBAT","160903120277",66,16,34,60],
+      ["4 BESTARI",35,"UQASHA BIN SANSIR","160918150049",62,34,22,34],
+      ["4 BESTARI",36,"WAFA INSYIRAH BINTI SAPAWI","160824150048",88,68,30,50],
+      ["4 BESTARI",37,"ZHAREEF NUFAIL BIN ZASNI","160908150053",78,58,36,62],
+      // 4 CEMERLANG (36 Murid)
+      ["4 CEMERLANG",1,"ADRA RABBIYA AQMA BINTI MASRIZAL","160514150018",60,22,12,34],
+      ["4 CEMERLANG",2,"ADRIAN BIN ABDULLAH","160408150057",48,24,18,42],
+      ["4 CEMERLANG",3,"AHMAD SAIF BIN GHUMAIDI","160106120805",20,16,2,18],
+      ["4 CEMERLANG",4,"AINA AFIQAH BINTI MARZHUKHI","160719120306",78,78,58,64],
+      ["4 CEMERLANG",5,"ALIFHAN ANWARI BIN ANUAR ANA RAFIAH KHAIRUNISA","161230150029",40,48,10,40],
+      ["4 CEMERLANG",6,"ANA RAFIAH KHAIRUNISAH HAIRUL BINTI ABDULLAH","160513121784",54,36,32,72],
+      ["4 CEMERLANG",7,"AQIF NAZMIE BIN AZRIZAN","160213120499",60,20,14,64],
+      ["4 CEMERLANG",8,"HAYFA SAFIYYAH BINTI AMNILKHAIRI","160807120322",48,20,6,44],
+      ["4 CEMERLANG",9,"IMAN FIRDAUS BIN FAZLI","160110150089",36,8,6,50],
+      ["4 CEMERLANG",10,"KHALIESAH AWFIYAH BINTI ABDULLAH","160417060520",62,42,4,58],
+      ["4 CEMERLANG",11,"MOHAMMAD BASIR RAIHAN BIN NORMAIZOL","161030150059",32,64,4,30],
+      ["4 CEMERLANG",12,"MOHAMMAD FAIZIN ZEAL BIN FAIZAL","160109150073",32,14,0,20],
+      ["4 CEMERLANG",13,"MOHAMMAD HARRAZ AQWALL BIN ABDULLAH","160315150031",16,12,8,24],
+      ["4 CEMERLANG",14,"MOHAMMAD SHARUL BIN JIMMY","160620150011",14,10,2,22],
+      ["4 CEMERLANG",15,"MUHAMAD AZYAN MIKAEL BIN AZLAN","161229150099",30,40,8,30],
+      ["4 CEMERLANG",16,"MUHAMAD BEDAH BIN ABDUL RASHID","161222150029",46,26,4,18],
+      ["4 CEMERLANG",17,"MUHAMAD EMANSHAH BIN MOHD KHAIRUL","160214150059",8,6,0,8],
+      ["4 CEMERLANG",18,"MUHAMMAD ADIB ZAFWAN BIN DIDIH","161019120633",34,50,16,48],
+      ["4 CEMERLANG",19,"MUHAMMAD AIDIL BIN ABD. RAHIM MUHAMMAD AMMA","160701150013",40,72,38,42],
+      ["4 CEMERLANG",20,"MUHAMMAD AMMAR ASYRAF BIN MOHD SYAHROL EZZU","160221150049",12,16,0,24],
+      ["4 CEMERLANG",21,"MUHAMMAD AQMAL RAYYAN BIN ARIF","161205120717",70,58,8,52],
+      ["4 CEMERLANG",22,"MUHAMMAD FIRDAUS BIN MOHD FITRI","161220150017",20,16,10,24],
+      ["4 CEMERLANG",23,"MUHAMMAD HAFIZ BIN ABDULLAH MUHAMMAD NURSY","160620150169",20,14,0,20],
+      ["4 CEMERLANG",24,"MUHAMMAD NURSYAFEZZIE BIN MOHD NURSYAFERRIE","160302120335",40,22,20,32],
+      ["4 CEMERLANG",25,"MUZIMAR BIN MARJAN","160406150037",34,14,2,26],
+      ["4 CEMERLANG",26,"NASRI BIN IBNU","160120150015",10,30,0,24],
+      ["4 CEMERLANG",27,"NUR AQILA FARIZAH BINTI ZAINI NUR FARA NACKESHA","160709150018",58,38,6,28],
+      ["4 CEMERLANG",28,"NUR FARA NACKESHA BINTI INNOH ISNANG JOE","161127121756",60,28,28,34],
+      ["4 CEMERLANG",29,"NUR FATHIA UMAIRA BINTI FADZILAH","161012150020",40,14,6,14],
+      ["4 CEMERLANG",30,"NURHIDAYAH BINTI ABDULLAH","160730150012",44,20,2,18],
+      ["4 CEMERLANG",31,"NURLARA UMAIRAH BINTI AWANG DAMIT","160825150066",60,44,20,38],
+      ["4 CEMERLANG",32,"NUR QAIRA ZAHRA BINTI MOHD FAIZAL","160210081068",76,66,18,52],
+      ["4 CEMERLANG",33,"NUR QAISARA CATHERINA BINTI JUMADI","160814150044",32,18,6,26],
+      ["4 CEMERLANG",34,"NUR SARAH SYUHADAH BINTI MOHD. SOBREE","160301150110",32,24,6,22],
+      ["4 CEMERLANG",35,"PUTRI NUR TASHMIRAH BINTI HAZMIN","160128150044",90,56,36,44],
+      ["4 CEMERLANG",36,"RAYHAN NUR QHADIJAH BINTI ZAINUDDIN","161002150078",70,32,16,52],
+      ["4 CEMERLANG",37,"RIA RAISSA BINTI MOHAMMAD NORIZAM","160126150016",36,34,12,30]
+    ];
+
+    // ---------------------------------------------------------
+    // HELPER FUNCTIONS & UASA COMBINED ENGINE
+    // ---------------------------------------------------------
+    function scoreToGrade(score) {
+      if (score === null || score === undefined || score === "") return null;
+      if (typeof score === "string") return score;
+      const n = Number(score);
+      if (isNaN(n)) return null;
+      if (n >= 82) return "A";
+      if (n >= 66) return "B";
+      if (n >= 50) return "C";
+      if (n >= 35) return "D";
+      if (n >= 20) return "E";
+      return "F";
+    }
+
+    function shortSubjectName(s) {
+      const map = {
+        "BAHASA MELAYU": "B. Melayu",
+        "BAHASA INGGERIS": "B. Inggeris",
+        "MATEMATIK": "Matematik",
+        "SAINS": "Sains",
+        "BAHASA ARAB": "B. Arab",
+        "PENDIDIKAN ISLAM": "Pend. Islam",
+        "PENDIDIKAN MORAL": "Pend. Moral",
+        "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN": "PJPK",
+        "PENDIDIKAN MUZIK": "Pend. Muzik",
+        "PENDIDIKAN SENI VISUAL": "Pend. Seni Visual",
+        "REKA BENTUK DAN TEKNOLOGI": "RBT",
+        "SEJARAH": "Sejarah"
+      };
+      return map[s] || s;
+    }
+
+    // Build Unified UASA Student List (461 Students) & Tahap 1 Summary
+    const uasaAllStudents = [];
+    uasaTahap1Raw.forEach((r, idx) => {
+      const [kelas, nama, bm, bi, mt, sn, pk, pai, pm, psv, ba, mz] = r;
+      const tahunNum = kelas.charAt(0);
+      uasaAllStudents.push({
+        id: idx + 1,
+        tahap: "TAHAP 1",
+        tahun: "TAHUN " + tahunNum,
+        kelas,
+        nama,
+        marks: {
+          "BAHASA MELAYU": bm,
+          "BAHASA INGGERIS": bi,
+          "MATEMATIK": mt,
+          "SAINS": sn,
+          "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN": pk,
+          "PENDIDIKAN ISLAM": pai,
+          "PENDIDIKAN MORAL": pm,
+          "PENDIDIKAN SENI VISUAL": psv,
+          "BAHASA ARAB": ba,
+          "PENDIDIKAN MUZIK": mz,
+          "REKA BENTUK DAN TEKNOLOGI": null,
+          "SEJARAH": null
+        },
+        grades: {
+          "BAHASA MELAYU": scoreToGrade(bm),
+          "BAHASA INGGERIS": scoreToGrade(bi),
+          "MATEMATIK": scoreToGrade(mt),
+          "SAINS": scoreToGrade(sn),
+          "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN": scoreToGrade(pk),
+          "PENDIDIKAN ISLAM": scoreToGrade(pai),
+          "PENDIDIKAN MORAL": scoreToGrade(pm),
+          "PENDIDIKAN SENI VISUAL": scoreToGrade(psv),
+          "BAHASA ARAB": scoreToGrade(ba),
+          "PENDIDIKAN MUZIK": scoreToGrade(mz),
+          "REKA BENTUK DAN TEKNOLOGI": null,
+          "SEJARAH": null
+        }
+      });
+    });
+
+    uasaTahap2Raw.forEach((r, idx) => {
+      const [kelas, nama, ba, bi, bm, mt, pai, pjpk, pm, mz, psv, rbt, sn, sej] = r;
+      const tahunNum = kelas.charAt(0);
+      uasaAllStudents.push({
+        id: uasaTahap1Raw.length + idx + 1,
+        tahap: "TAHAP 2",
+        tahun: "TAHUN " + tahunNum,
+        kelas,
+        nama,
+        marks: null,
+        grades: {
+          "BAHASA ARAB": ba,
+          "BAHASA INGGERIS": bi,
+          "BAHASA MELAYU": bm,
+          "MATEMATIK": mt,
+          "PENDIDIKAN ISLAM": pai,
+          "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN": pjpk,
+          "PENDIDIKAN MORAL": pm,
+          "PENDIDIKAN MUZIK": mz,
+          "PENDIDIKAN SENI VISUAL": psv,
+          "REKA BENTUK DAN TEKNOLOGI": rbt,
+          "SAINS": sn,
+          "SEJARAH": sej
+        }
+      });
+    });
+
+    // Derive Tahap 1 Summary Rows from exact student marks
+    const allSubjects = [
+      "BAHASA MELAYU", "BAHASA INGGERIS", "MATEMATIK", "SAINS",
+      "BAHASA ARAB", "PENDIDIKAN ISLAM", "PENDIDIKAN MORAL",
+      "PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN",
+      "PENDIDIKAN MUZIK", "PENDIDIKAN SENI VISUAL",
+      "REKA BENTUK DAN TEKNOLOGI", "SEJARAH"
+    ];
+
+    const uasaTahap1Summary = [];
+    ["TAHUN 1", "TAHUN 2", "TAHUN 3"].forEach(thn => {
+      allSubjects.forEach(sub => {
+        const counts = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 0, jumlah: 0 };
+        uasaAllStudents.filter(s => s.tahun === thn).forEach(s => {
+          const g = s.grades[sub];
+          if (!g) return;
+          counts.jumlah++;
+          if (g === "A") counts.a++;
+          else if (g === "B") counts.b++;
+          else if (g === "C") counts.c++;
+          else if (g === "D") counts.d++;
+          else if (g === "E") counts.e++;
+          else if (g === "F") counts.f++;
+          else if (g === "TD") counts.td++;
+        });
+        if (counts.jumlah > 0) {
+          uasaTahap1Summary.push({
+            subjek: sub,
+            tahap: "TAHAP 1",
+            tahun: thn,
+            ...counts
+          });
+        }
+      });
+    });
+
+    // Combine Tahap 1 + Tahap 2 Summary into ONE Unified UASA Summary Dataset
+    const uasaCombinedSummary = [...uasaTahap1Summary, ...uasaTahap2SummaryOfficial];
+
+    // Global Chart Instances
+    let charts = {};
+    let currentTab = "pbd-akhir";
+    let currentUasaView = "summary";
+
+    // Populate Subject Dropdowns
+    function initDropdowns() {
+      const selects = ["filter-akhir-subjek", "filter-tengah-subjek", "filter-uasa-subjek"];
+      selects.forEach(id => {
+        const el = document.getElementById(id);
+        allSubjects.forEach(sub => {
+          const opt = document.createElement("option");
+          opt.value = sub;
+          opt.textContent = sub;
+          el.appendChild(opt);
+        });
+      });
+    }
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      currentTab = tabId;
+      const sections = ["pbd-akhir", "pbd-tengah", "uasa", "mpt4"];
+      sections.forEach(s => {
+        document.getElementById("sec-" + s).classList.toggle("hidden", s !== tabId);
+        document.getElementById("tab-" + s).classList.toggle("active", s === tabId);
+      });
+      if (tabId === "pbd-akhir") renderPBDAkhir();
+      if (tabId === "pbd-tengah") renderPBDTengah();
+      if (tabId === "uasa") renderUASA();
+      if (tabId === "mpt4") renderMPT4();
+    }
+
+    // ---------------------------------------------------------
+    // RENDER TAB 1: PBD AKHIR TAHUN 2026
+    // ---------------------------------------------------------
+    function resetPBDAkhirFilter() {
+      document.getElementById("filter-akhir-tahun").value = "ALL";
+      document.getElementById("filter-akhir-subjek").value = "ALL";
+      document.getElementById("sort-akhir-table").value = "default";
+      renderPBDAkhir();
+    }
+
+    function renderPBDAkhir() {
+      const fTahun = document.getElementById("filter-akhir-tahun").value;
+      const fSubjek = document.getElementById("filter-akhir-subjek").value;
+      const sortMode = document.getElementById("sort-akhir-table").value;
+
+      let filtered = pbdAkhirData.filter(d => {
+        if (fTahun !== "ALL" && d.tahun !== fTahun) return false;
+        if (fSubjek !== "ALL" && d.subjek !== fSubjek) return false;
+        return true;
+      });
+
+      // Compute KPIs
+      let tot = 0, tp1 = 0, tp2 = 0, tp3 = 0, tp4 = 0, tp5 = 0, tp6 = 0;
+      filtered.forEach(d => {
+        tot += d.jumlah;
+        tp1 += d.tp1; tp2 += d.tp2; tp3 += d.tp3;
+        tp4 += d.tp4; tp5 += d.tp5; tp6 += d.tp6;
+      });
+
+      const tp12 = tp1 + tp2;
+      const mtm = tp3 + tp4 + tp5 + tp6;
+      const tp56 = tp5 + tp6;
+
+      const pct12 = tot > 0 ? ((tp12 / tot) * 100).toFixed(2) : "0.00";
+      const pctMtm = tot > 0 ? ((mtm / tot) * 100).toFixed(2) : "0.00";
+      const pct56 = tot > 0 ? ((tp56 / tot) * 100).toFixed(2) : "0.00";
+
+      document.getElementById("kpi-akhir-total").textContent = tot.toLocaleString();
+      document.getElementById("kpi-akhir-sub").textContent = fSubjek === "ALL" ? "Merangkumi 12 mata pelajaran" : shortSubjectName(fSubjek);
+      document.getElementById("kpi-akhir-tp12-pct").textContent = pct12 + "%";
+      document.getElementById("kpi-akhir-tp12-count").textContent = tp12 + " murid";
+      document.getElementById("kpi-akhir-tp12-detail").textContent = `TP1: ${tp1} | TP2: ${tp2} (Belum Menguasai)`;
+      document.getElementById("kpi-akhir-mtm-pct").textContent = pctMtm + "%";
+      document.getElementById("kpi-akhir-mtm-count").textContent = `(${mtm.toLocaleString()})`;
+      document.getElementById("kpi-akhir-tp56-pct").textContent = pct56 + "%";
+      document.getElementById("kpi-akhir-tp56-count").textContent = `(${tp56.toLocaleString()})`;
+      document.getElementById("kpi-akhir-tp56-detail").textContent = `TP5: ${tp5} | TP6: ${tp6}`;
+
+      // Aggregate by Subject (or by Tahun if specific Subject selected) for Charts
+      const groupKey = fSubjek === "ALL" ? "subjek" : "tahun";
+      const groupedMap = new Map();
+      filtered.forEach(d => {
+        const key = d[groupKey];
+        if (!groupedMap.has(key)) {
+          groupedMap.set(key, { label: key, tp1: 0, tp2: 0, tp3: 0, tp4: 0, tp5: 0, tp6: 0, jumlah: 0 });
+        }
+        const g = groupedMap.get(key);
+        g.tp1 += d.tp1; g.tp2 += d.tp2; g.tp3 += d.tp3;
+        g.tp4 += d.tp4; g.tp5 += d.tp5; g.tp6 += d.tp6;
+        g.jumlah += d.jumlah;
+      });
+
+      const groupedArr = Array.from(groupedMap.values()).map(g => {
+        const sum12 = g.tp1 + g.tp2;
+        return {
+          ...g,
+          shortLabel: fSubjek === "ALL" ? shortSubjectName(g.label) : g.label,
+          pct12: g.jumlah > 0 ? Number(((sum12 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp1: g.jumlah > 0 ? Number(((g.tp1 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp2: g.jumlah > 0 ? Number(((g.tp2 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp3: g.jumlah > 0 ? Number(((g.tp3 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp4: g.jumlah > 0 ? Number(((g.tp4 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp5: g.jumlah > 0 ? Number(((g.tp5 / g.jumlah) * 100).toFixed(2)) : 0,
+          pctTp6: g.jumlah > 0 ? Number(((g.tp6 / g.jumlah) * 100).toFixed(2)) : 0
+        };
+      });
+
+      // Chart 1: Horizontal Bar TP1+TP2 %
+      const sorted12 = [...groupedArr].sort((a, b) => b.pct12 - a.pct12);
+      if (charts.akhirTp12) charts.akhirTp12.destroy();
+      charts.akhirTp12 = new Chart(document.getElementById("chart-akhir-tp12"), {
+        type: "bar",
+        data: {
+          labels: sorted12.map(x => x.shortLabel),
+          datasets: [{
+            label: "% Murid TP1 & TP2",
+            data: sorted12.map(x => x.pct12),
+            backgroundColor: sorted12.map(x => x.pct12 >= 8 ? "#e11d48" : x.pct12 >= 3 ? "#f59e0b" : "#10b981"),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` TP1+TP2: ${ctx.parsed.x}%`
+              }
+            }
+          },
+          scales: {
+            x: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { callback: v => v + "%", font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11, weight: "600" } } }
+          }
+        }
+      });
+
+      // Chart 2: Stacked Bar TP1-TP6 %
+      document.getElementById("chart-akhir-dist-subtitle").textContent =
+        fSubjek === "ALL" ? "Peratusan penguasaan mengikut mata pelajaran" : `Peratusan penguasaan ${shortSubjectName(fSubjek)} mengikut tahun`;
+
+      if (charts.akhirDist) charts.akhirDist.destroy();
+      charts.akhirDist = new Chart(document.getElementById("chart-akhir-dist"), {
+        type: "bar",
+        data: {
+          labels: groupedArr.map(x => x.shortLabel),
+          datasets: [
+            { label: "TP1", data: groupedArr.map(x => x.pctTp1), backgroundColor: "#be123c" },
+            { label: "TP2", data: groupedArr.map(x => x.pctTp2), backgroundColor: "#f97316" },
+            { label: "TP3", data: groupedArr.map(x => x.pctTp3), backgroundColor: "#eab308" },
+            { label: "TP4", data: groupedArr.map(x => x.pctTp4), backgroundColor: "#3b82f6" },
+            { label: "TP5", data: groupedArr.map(x => x.pctTp5), backgroundColor: "#10b981" },
+            { label: "TP6", data: groupedArr.map(x => x.pctTp6), backgroundColor: "#047857" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%`
+              }
+            }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10, weight: "600" } } },
+            y: { stacked: true, max: 100, grid: { color: "#f1f5f9" }, ticks: { callback: v => v + "%", font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Sort & Render Table
+      let tableRows = filtered.map(d => {
+        const s12 = d.tp1 + d.tp2;
+        const p12 = d.jumlah > 0 ? (s12 / d.jumlah) * 100 : 0;
+        const sMtm = d.tp3 + d.tp4 + d.tp5 + d.tp6;
+        const pMtm = d.jumlah > 0 ? (sMtm / d.jumlah) * 100 : 0;
+        const p56 = d.jumlah > 0 ? ((d.tp5 + d.tp6) / d.jumlah) * 100 : 0;
+        return { ...d, s12, p12, pMtm, p56 };
+      });
+
+      if (sortMode === "tp12_desc") tableRows.sort((a, b) => b.p12 - a.p12);
+      else if (sortMode === "mtm_desc") tableRows.sort((a, b) => b.pMtm - a.pMtm);
+      else if (sortMode === "tp56_desc") tableRows.sort((a, b) => b.p56 - a.p56);
+
+      const tbody = document.getElementById("tbody-pbd-akhir");
+      tbody.innerHTML = tableRows.map(r => {
+        const badgeClass = r.p12 >= 10
+          ? "bg-rose-600 text-white font-bold"
+          : r.p12 > 0
+            ? "bg-amber-100 text-amber-900 font-bold"
+            : "bg-emerald-50 text-emerald-700 font-semibold";
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2.5 px-3.5 font-semibold text-slate-900">${r.subjek}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-600">${r.tahun}</td>
+            <td class="py-2.5 px-2.5 text-center ${r.tp1 > 0 ? 'text-rose-700 font-bold' : ''}">${r.tp1}</td>
+            <td class="py-2.5 px-2.5 text-center ${r.tp2 > 0 ? 'text-amber-700 font-bold' : ''}">${r.tp2}</td>
+            <td class="py-2.5 px-2.5 text-center bg-rose-50/70 font-bold text-rose-900">${r.s12}</td>
+            <td class="py-2.5 px-3 text-center bg-rose-50/70">
+              <span class="px-2 py-0.5 rounded-full text-[11px] ${badgeClass}">${r.p12.toFixed(2)}%</span>
+            </td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp3}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp4}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp5}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp6}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-emerald-700 bg-emerald-50/50">${r.pMtm.toFixed(2)}%</td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-900">${r.jumlah}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("tfoot-pbd-akhir").innerHTML = `
+        <tr>
+          <td class="py-3 px-3.5" colspan="2">JUMLAH KESELURUHAN PENAPIS</td>
+          <td class="py-3 px-2.5 text-center text-rose-700">${tp1}</td>
+          <td class="py-3 px-2.5 text-center text-amber-700">${tp2}</td>
+          <td class="py-3 px-2.5 text-center bg-rose-100 text-rose-900">${tp12}</td>
+          <td class="py-3 px-3 text-center bg-rose-100 text-rose-900">${pct12}%</td>
+          <td class="py-3 px-2.5 text-center">${tp3}</td>
+          <td class="py-3 px-2.5 text-center">${tp4}</td>
+          <td class="py-3 px-2.5 text-center">${tp5}</td>
+          <td class="py-3 px-2.5 text-center">${tp6}</td>
+          <td class="py-3 px-3 text-center bg-emerald-100 text-emerald-900">${pctMtm}%</td>
+          <td class="py-3 px-3 text-center">${tot}</td>
+        </tr>
+      `;
+    }
+
+    // ---------------------------------------------------------
+    // RENDER TAB 2: PBD PERTENGAHAN TAHUN 2026
+    // ---------------------------------------------------------
+    function resetPBDTengahFilter() {
+      document.getElementById("filter-tengah-tahun").value = "ALL";
+      document.getElementById("filter-tengah-subjek").value = "ALL";
+      renderPBDTengah();
+    }
+
+    function renderPBDTengah() {
+      const fTahun = document.getElementById("filter-tengah-tahun").value;
+      const fSubjek = document.getElementById("filter-tengah-subjek").value;
+
+      const filtered = pbdTengahData.filter(d => {
+        if (fTahun !== "ALL" && d.tahun !== fTahun) return false;
+        if (fSubjek !== "ALL" && d.subjek !== fSubjek) return false;
+        return true;
+      });
+
+      const filteredAkhir = pbdAkhirData.filter(d => {
+        if (fTahun !== "ALL" && d.tahun !== fTahun) return false;
+        if (fSubjek !== "ALL" && d.subjek !== fSubjek) return false;
+        return true;
+      });
+
+      let tot = 0, tp1 = 0, tp2 = 0, tp3 = 0, tp4 = 0, tp5 = 0, tp6 = 0;
+      filtered.forEach(d => {
+        tot += d.jumlah;
+        tp1 += d.tp1; tp2 += d.tp2; tp3 += d.tp3;
+        tp4 += d.tp4; tp5 += d.tp5; tp6 += d.tp6;
+      });
+
+      let totA = 0, mtmA = 0;
+      filteredAkhir.forEach(d => {
+        totA += d.jumlah;
+        mtmA += (d.tp3 + d.tp4 + d.tp5 + d.tp6);
+      });
+
+      const tp12 = tp1 + tp2;
+      const mtm = tp3 + tp4 + tp5 + tp6;
+      const tp56 = tp5 + tp6;
+
+      const pct12 = tot > 0 ? ((tp12 / tot) * 100).toFixed(2) : "0.00";
+      const pctMtm = tot > 0 ? ((mtm / tot) * 100).toFixed(2) : "0.00";
+      const pct56 = tot > 0 ? ((tp56 / tot) * 100).toFixed(2) : "0.00";
+      const pctMtmA = totA > 0 ? ((mtmA / totA) * 100) : 0;
+      const diffMtm = (pctMtmA - Number(pctMtm)).toFixed(2);
+
+      document.getElementById("kpi-tengah-total").textContent = tot.toLocaleString();
+      document.getElementById("kpi-tengah-tp12-pct").textContent = pct12 + "%";
+      document.getElementById("kpi-tengah-tp12-count").textContent = tp12 + " murid";
+      document.getElementById("kpi-tengah-tp12-detail").textContent = `TP1: ${tp1} | TP2: ${tp2}`;
+      document.getElementById("kpi-tengah-mtm-pct").textContent = pctMtm + "%";
+      document.getElementById("kpi-tengah-mtm-count").textContent = `(${mtm.toLocaleString()})`;
+      document.getElementById("kpi-tengah-lonjakan").textContent =
+        `Lonjakan ke Akhir Tahun: ${Number(diffMtm) >= 0 ? "+" : ""}${diffMtm}%`;
+      document.getElementById("kpi-tengah-tp56-pct").textContent = pct56 + "%";
+      document.getElementById("kpi-tengah-tp56-count").textContent = `(${tp56.toLocaleString()})`;
+      document.getElementById("kpi-tengah-tp56-detail").textContent = `TP5: ${tp5} | TP6: ${tp6}`;
+
+      // Compare Chart: Pertengahan vs Akhir % TP1+TP2
+      const groupKey = fSubjek === "ALL" ? "subjek" : "tahun";
+      const keys = Array.from(new Set(filtered.map(d => d[groupKey])));
+      const tengahPct12Arr = keys.map(k => {
+        const rows = filtered.filter(d => d[groupKey] === k);
+        const s = rows.reduce((acc, r) => acc + r.tp1 + r.tp2, 0);
+        const j = rows.reduce((acc, r) => acc + r.jumlah, 0);
+        return j > 0 ? Number(((s / j) * 100).toFixed(2)) : 0;
+      });
+      const akhirPct12Arr = keys.map(k => {
+        const rows = filteredAkhir.filter(d => d[groupKey] === k);
+        const s = rows.reduce((acc, r) => acc + r.tp1 + r.tp2, 0);
+        const j = rows.reduce((acc, r) => acc + r.jumlah, 0);
+        return j > 0 ? Number(((s / j) * 100).toFixed(2)) : 0;
+      });
+
+      if (charts.tengahCompare) charts.tengahCompare.destroy();
+      charts.tengahCompare = new Chart(document.getElementById("chart-tengah-compare"), {
+        type: "bar",
+        data: {
+          labels: keys.map(k => fSubjek === "ALL" ? shortSubjectName(k) : k),
+          datasets: [
+            { label: "Pertengahan Tahun (% TP1+TP2)", data: tengahPct12Arr, backgroundColor: "#f59e0b", borderRadius: 4 },
+            { label: "Akhir Tahun (% TP1+TP2)", data: akhirPct12Arr, backgroundColor: "#1e3a8a", borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "600" } } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { callback: v => v + "%", font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Distribution Chart
+      const distRows = keys.map(k => {
+        const rows = filtered.filter(d => d[groupKey] === k);
+        const j = rows.reduce((acc, r) => acc + r.jumlah, 0);
+        const sumTp = idx => rows.reduce((acc, r) => acc + r["tp" + idx], 0);
+        return {
+          label: fSubjek === "ALL" ? shortSubjectName(k) : k,
+          p1: j ? +(sumTp(1) / j * 100).toFixed(2) : 0,
+          p2: j ? +(sumTp(2) / j * 100).toFixed(2) : 0,
+          p3: j ? +(sumTp(3) / j * 100).toFixed(2) : 0,
+          p4: j ? +(sumTp(4) / j * 100).toFixed(2) : 0,
+          p5: j ? +(sumTp(5) / j * 100).toFixed(2) : 0,
+          p6: j ? +(sumTp(6) / j * 100).toFixed(2) : 0
+        };
+      });
+
+      if (charts.tengahDist) charts.tengahDist.destroy();
+      charts.tengahDist = new Chart(document.getElementById("chart-tengah-dist"), {
+        type: "bar",
+        data: {
+          labels: distRows.map(x => x.label),
+          datasets: [
+            { label: "TP1", data: distRows.map(x => x.p1), backgroundColor: "#be123c" },
+            { label: "TP2", data: distRows.map(x => x.p2), backgroundColor: "#f97316" },
+            { label: "TP3", data: distRows.map(x => x.p3), backgroundColor: "#eab308" },
+            { label: "TP4", data: distRows.map(x => x.p4), backgroundColor: "#3b82f6" },
+            { label: "TP5", data: distRows.map(x => x.p5), backgroundColor: "#10b981" },
+            { label: "TP6", data: distRows.map(x => x.p6), backgroundColor: "#047857" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10, weight: "600" } } },
+            y: { stacked: true, max: 100, grid: { color: "#f1f5f9" }, ticks: { callback: v => v + "%", font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Render Table
+      document.getElementById("tbody-pbd-tengah").innerHTML = filtered.map(r => {
+        const s12 = r.tp1 + r.tp2;
+        const p12 = r.jumlah > 0 ? (s12 / r.jumlah) * 100 : 0;
+        const pMtm = r.jumlah > 0 ? ((r.tp3 + r.tp4 + r.tp5 + r.tp6) / r.jumlah) * 100 : 0;
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2.5 px-3.5 font-semibold text-slate-900">${r.subjek}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-600">${r.tahun}</td>
+            <td class="py-2.5 px-2.5 text-center ${r.tp1 > 0 ? 'text-rose-700 font-bold' : ''}">${r.tp1}</td>
+            <td class="py-2.5 px-2.5 text-center ${r.tp2 > 0 ? 'text-amber-700 font-bold' : ''}">${r.tp2}</td>
+            <td class="py-2.5 px-2.5 text-center bg-amber-50/70 font-bold text-amber-900">${s12}</td>
+            <td class="py-2.5 px-3 text-center bg-amber-50/70 font-bold text-amber-800">${p12.toFixed(2)}%</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp3}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp4}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp5}</td>
+            <td class="py-2.5 px-2.5 text-center">${r.tp6}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-emerald-700 bg-emerald-50/50">${pMtm.toFixed(2)}%</td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-900">${r.jumlah}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("tfoot-pbd-tengah").innerHTML = `
+        <tr>
+          <td class="py-3 px-3.5" colspan="2">JUMLAH KESELURUHAN PENAPIS</td>
+          <td class="py-3 px-2.5 text-center text-rose-700">${tp1}</td>
+          <td class="py-3 px-2.5 text-center text-amber-700">${tp2}</td>
+          <td class="py-3 px-2.5 text-center bg-amber-100 text-amber-900">${tp12}</td>
+          <td class="py-3 px-3 text-center bg-amber-100 text-amber-900">${pct12}%</td>
+          <td class="py-3 px-2.5 text-center">${tp3}</td>
+          <td class="py-3 px-2.5 text-center">${tp4}</td>
+          <td class="py-3 px-2.5 text-center">${tp5}</td>
+          <td class="py-3 px-2.5 text-center">${tp6}</td>
+          <td class="py-3 px-3 text-center bg-emerald-100 text-emerald-900">${pctMtm}%</td>
+          <td class="py-3 px-3 text-center">${tot}</td>
+        </tr>
+      `;
+    }
+
+    // ---------------------------------------------------------
+    // RENDER TAB 3: UASA 2026 (GABUNGAN TAHAP 1 & TAHAP 2)
+    // ---------------------------------------------------------
+    function setUasaView(view) {
+      currentUasaView = view;
+      document.getElementById("uasa-summary-container").classList.toggle("hidden", view !== "summary");
+      document.getElementById("uasa-students-container").classList.toggle("hidden", view !== "students");
+
+      const btnSum = document.getElementById("btn-uasa-view-summary");
+      const btnStu = document.getElementById("btn-uasa-view-students");
+      if (view === "summary") {
+        btnSum.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-900 text-white shadow-sm transition";
+        btnStu.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+        document.getElementById("uasa-table-badge").textContent = "Menunjukkan rumusan gabungan Tahap 1 & Tahap 2";
+      } else {
+        btnStu.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-900 text-white shadow-sm transition";
+        btnSum.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+        document.getElementById("uasa-table-badge").textContent = "Senarai individu lengkap Tahap 1 & Tahap 2";
+      }
+    }
+
+    function onUasaTahapChange() {
+      const tahap = document.getElementById("filter-uasa-tahap").value;
+      if (tahap !== "ALL") {
+        document.getElementById("filter-uasa-tahun").value = "ALL";
+        document.getElementById("filter-uasa-kelas").value = "ALL";
+      }
+      renderUASA();
+    }
+
+    function onUasaTahunChange() {
+      const tahun = document.getElementById("filter-uasa-tahun").value;
+      if (tahun !== "ALL") {
+        const num = Number(tahun.replace("TAHUN ", ""));
+        document.getElementById("filter-uasa-tahap").value = num <= 3 ? "TAHAP 1" : "TAHAP 2";
+        document.getElementById("filter-uasa-kelas").value = "ALL";
+      }
+      renderUASA();
+    }
+
+    function gradeBadgeHTML(grade, mark) {
+      if (!grade) return `<span class="text-slate-300">-</span>`;
+      if (grade === "TD") return `<span title="Tidak Ditaksir" class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">TD (Tidak Ditaksir)</span>`;
+      const colors = {
+        "A": "bg-emerald-100 text-emerald-800 border border-emerald-300",
+        "B": "bg-blue-100 text-blue-800 border border-blue-200",
+        "C": "bg-sky-50 text-sky-800 border border-sky-200",
+        "D": "bg-amber-100 text-amber-800 border border-amber-200",
+        "E": "bg-orange-100 text-orange-800 border border-orange-200",
+        "F": "bg-rose-600 text-white"
+      };
+      const cls = colors[grade] || "bg-slate-100 text-slate-700";
+      if (mark !== null && mark !== undefined) {
+        return `<span class="inline-block px-1.5 py-0.5 rounded font-bold text-[10px] ${cls}">${mark} (${grade})</span>`;
+      }
+      return `<span class="inline-block px-2 py-0.5 rounded font-bold text-[10px] ${cls}">${grade}</span>`;
+    }
+
+    function renderUASA() {
+      const fTahap = document.getElementById("filter-uasa-tahap").value;
+      const fTahun = document.getElementById("filter-uasa-tahun").value;
+      const fKelas = document.getElementById("filter-uasa-kelas").value;
+      const fSubjek = document.getElementById("filter-uasa-subjek").value;
+      const fSearch = document.getElementById("filter-uasa-search").value.trim().toUpperCase();
+
+      // If class or search is active, auto switch to individual students view if user is searching
+      if (fSearch.length > 0 && currentUasaView === "summary") {
+        setUasaView("students");
+      }
+
+      // Filter Individual Students
+      const filteredStudents = uasaAllStudents.filter(s => {
+        if (fTahap !== "ALL" && s.tahap !== fTahap) return false;
+        if (fTahun !== "ALL" && s.tahun !== fTahun) return false;
+        if (fKelas !== "ALL" && s.kelas !== fKelas) return false;
+        if (fSearch && !s.nama.toUpperCase().includes(fSearch)) return false;
+        return true;
+      });
+
+      // Filter Summary Rows (If Kelas or Search is selected, compute dynamically from filteredStudents; else use official combined summary!)
+      let summaryRows = [];
+      if (fKelas !== "ALL" || fSearch !== "") {
+        const subs = fSubjek === "ALL" ? allSubjects : [fSubjek];
+        subs.forEach(sub => {
+          const c = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, td: 0, jumlah: 0 };
+          filteredStudents.forEach(s => {
+            const g = s.grades[sub];
+            if (!g) return;
+            c.jumlah++;
+            if (g === "A") c.a++;
+            else if (g === "B") c.b++;
+            else if (g === "C") c.c++;
+            else if (g === "D") c.d++;
+            else if (g === "E") c.e++;
+            else if (g === "F") c.f++;
+            else if (g === "TD") c.td++;
+          });
+          if (c.jumlah > 0) {
+            summaryRows.push({
+              subjek: sub,
+              tahap: fKelas !== "ALL" ? (Number(fKelas.charAt(0)) <= 3 ? "TAHAP 1" : "TAHAP 2") : "GABUNGAN",
+              tahun: fKelas !== "ALL" ? fKelas : "CARIAN",
+              ...c
+            });
+          }
+        });
+      } else {
+        summaryRows = uasaCombinedSummary.filter(r => {
+          if (fTahap !== "ALL" && r.tahap !== fTahap) return false;
+          if (fTahun !== "ALL" && r.tahun !== fTahun) return false;
+          if (fSubjek !== "ALL" && r.subjek !== fSubjek) return false;
+          return true;
+        });
+      }
+
+      // Aggregate KPIs from summaryRows
+      let totA = 0, totB = 0, totC = 0, totD = 0, totE = 0, totF = 0, totTD = 0, totAll = 0;
+      summaryRows.forEach(r => {
+        totA += r.a; totB += r.b; totC += r.c;
+        totD += r.d; totE += r.e; totF += r.f;
+        totTD += r.td; totAll += r.jumlah;
+      });
+      const satPapers = totAll - totTD;
+      const lulusPapers = totA + totB + totC + totD + totE;
+      const pctLulus = satPapers > 0 ? ((lulusPapers / satPapers) * 100).toFixed(2) : "0.00";
+      const pctGredA = satPapers > 0 ? ((totA / satPapers) * 100).toFixed(2) : "0.00";
+
+      const t1Count = filteredStudents.filter(s => s.tahap === "TAHAP 1").length;
+      const t2Count = filteredStudents.filter(s => s.tahap === "TAHAP 2").length;
+
+      document.getElementById("kpi-uasa-murid").textContent = filteredStudents.length;
+      document.getElementById("kpi-uasa-murid-sub").textContent = `Tahap 1: ${t1Count} | Tahap 2: ${t2Count}`;
+      document.getElementById("kpi-uasa-lulus-pct").textContent = pctLulus + "%";
+      document.getElementById("kpi-uasa-lulus-count").textContent = `(${lulusPapers.toLocaleString()} / ${satPapers.toLocaleString()})`;
+      document.getElementById("kpi-uasa-greda-pct").textContent = pctGredA + "%";
+      document.getElementById("kpi-uasa-greda-count").textContent = `(${totA.toLocaleString()} A)`;
+      document.getElementById("kpi-uasa-gredf-count").textContent = totF.toLocaleString();
+      document.getElementById("kpi-uasa-td-count").textContent = `TD (Tidak Ditaksir): ${totTD}`;
+
+      // Chart 1: Subject Grade Breakdown
+      const subMap = new Map();
+      summaryRows.forEach(r => {
+        if (!subMap.has(r.subjek)) {
+          subMap.set(r.subjek, { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 });
+        }
+        const m = subMap.get(r.subjek);
+        m.a += r.a; m.b += r.b; m.c += r.c;
+        m.d += r.d; m.e += r.e; m.f += r.f;
+      });
+      const subKeys = Array.from(subMap.keys());
+
+      if (charts.uasaSubjek) charts.uasaSubjek.destroy();
+      charts.uasaSubjek = new Chart(document.getElementById("chart-uasa-subjek"), {
+        type: "bar",
+        data: {
+          labels: subKeys.map(k => shortSubjectName(k)),
+          datasets: [
+            { label: "Gred A", data: subKeys.map(k => subMap.get(k).a), backgroundColor: "#059669" },
+            { label: "Gred B", data: subKeys.map(k => subMap.get(k).b), backgroundColor: "#2563eb" },
+            { label: "Gred C", data: subKeys.map(k => subMap.get(k).c), backgroundColor: "#38bdf8" },
+            { label: "Gred D", data: subKeys.map(k => subMap.get(k).d), backgroundColor: "#f59e0b" },
+            { label: "Gred E", data: subKeys.map(k => subMap.get(k).e), backgroundColor: "#f97316" },
+            { label: "Gred F", data: subKeys.map(k => subMap.get(k).f), backgroundColor: "#e11d48" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10, weight: "600" } } },
+            y: { stacked: true, grid: { color: "#f1f5f9" }, ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Chart 2: Doughnut Overall Grade Composition
+      if (charts.uasaDoughnut) charts.uasaDoughnut.destroy();
+      charts.uasaDoughnut = new Chart(document.getElementById("chart-uasa-doughnut"), {
+        type: "doughnut",
+        data: {
+          labels: ["Gred A (82-100)", "Gred B (66-81)", "Gred C (50-65)", "Gred D (35-49)", "Gred E (20-34)", "Gred F (0-19)"],
+          datasets: [{
+            data: [totA, totB, totC, totD, totE, totF],
+            backgroundColor: ["#059669", "#2563eb", "#38bdf8", "#f59e0b", "#f97316", "#e11d48"],
+            borderWidth: 2,
+            borderColor: "#ffffff"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "60%",
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Render Summary Table
+      document.getElementById("tbody-uasa-summary").innerHTML = summaryRows.map(r => {
+        const sat = r.jumlah - r.td;
+        const lulus = r.a + r.b + r.c + r.d + r.e;
+        const pLulus = sat > 0 ? ((lulus / sat) * 100).toFixed(2) + "%" : "TD (Tidak Ditaksir)";
+        const gpmp = sat > 0
+          ? (((r.a * 1) + (r.b * 2) + (r.c * 3) + (r.d * 4) + (r.e * 5) + (r.f * 6)) / sat).toFixed(2)
+          : "-";
+        const tahapBadge = r.tahap === "TAHAP 1"
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">Tahap 1</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Tahap 2</span>`;
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2.5 px-3.5 font-semibold text-slate-900">${r.subjek}</td>
+            <td class="py-2.5 px-2.5">${tahapBadge}</td>
+            <td class="py-2.5 px-2.5 font-medium text-slate-600">${r.tahun}</td>
+            <td class="py-2.5 px-2 text-center font-bold text-emerald-700 bg-emerald-50/40">${r.a}</td>
+            <td class="py-2.5 px-2 text-center">${r.b}</td>
+            <td class="py-2.5 px-2 text-center">${r.c}</td>
+            <td class="py-2.5 px-2 text-center">${r.d}</td>
+            <td class="py-2.5 px-2 text-center">${r.e}</td>
+            <td class="py-2.5 px-2 text-center font-bold ${r.f > 0 ? 'text-rose-700 bg-rose-50/50' : ''}">${r.f}</td>
+            <td class="py-2.5 px-2 text-center text-slate-500">${r.td}</td>
+            <td class="py-2.5 px-2.5 text-center font-bold ${sat > 0 ? 'text-emerald-700 bg-emerald-50/60' : 'text-slate-400'}">${pLulus}</td>
+            <td class="py-2.5 px-2.5 text-center font-semibold text-slate-800">${gpmp}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-slate-900">${r.jumlah}</td>
+          </tr>
+        `;
+      }).join("");
+
+      // Render Individual Student Table
+      document.getElementById("uasa-student-count-label").textContent = `${filteredStudents.length} Murid Dipaparkan`;
+      document.getElementById("tbody-uasa-students").innerHTML = filteredStudents.map((s, i) => {
+        const paiOrPmGrade = s.grades["PENDIDIKAN ISLAM"] || s.grades["PENDIDIKAN MORAL"];
+        const paiOrPmMark = s.marks ? (s.marks["PENDIDIKAN ISLAM"] !== null ? s.marks["PENDIDIKAN ISLAM"] : s.marks["PENDIDIKAN MORAL"]) : null;
+        const paiOrPmLabel = s.grades["PENDIDIKAN ISLAM"] ? "" : (paiOrPmGrade ? " <span class='text-[9px] text-slate-400'>(PM)</span>" : "");
+        const getCell = (sub) => gradeBadgeHTML(s.grades[sub], s.marks ? s.marks[sub] : null);
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2 px-2.5 text-slate-500 font-medium">${i + 1}</td>
+            <td class="py-2 px-2.5 font-bold text-slate-700 whitespace-nowrap">${s.kelas}</td>
+            <td class="py-2 px-3 font-semibold text-slate-900">${s.nama}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("BAHASA MELAYU")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("BAHASA INGGERIS")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("MATEMATIK")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("SAINS")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${gradeBadgeHTML(paiOrPmGrade, paiOrPmMark)}${paiOrPmLabel}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("BAHASA ARAB")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("PENDIDIKAN JASMANI DAN PENDIDIKAN KESIHATAN")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("PENDIDIKAN MUZIK")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("PENDIDIKAN SENI VISUAL")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("REKA BENTUK DAN TEKNOLOGI")}</td>
+            <td class="py-2 px-2 text-center whitespace-nowrap">${getCell("SEJARAH")}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // ---------------------------------------------------------
+    // RENDER TAB 4: MPT4 2026 (TAHUN 4)
+    // ---------------------------------------------------------
+    function renderMPT4() {
+      const fKelas = document.getElementById("filter-mpt4-kelas").value;
+      const fStatus = document.getElementById("filter-mpt4-status").value;
+      const fSearch = document.getElementById("filter-mpt4-search").value.trim().toUpperCase();
+
+      const enriched = mpt4Raw.map(r => {
+        const [kelas, bil, nama, kp, bm, bi, mt, sn] = r;
+        const passBM = bm >= 20;
+        const passBI = bi >= 20;
+        const passMT = mt >= 20;
+        const passSN = sn >= 20;
+        const passCount = [passBM, passBI, passMT, passSN].filter(Boolean).length;
+        const avg = ((bm + bi + mt + sn) / 4).toFixed(1);
+        return { kelas, bil, nama, kp, bm, bi, mt, sn, passBM, passBI, passMT, passSN, passCount, avg };
+      });
+
+      const filtered = enriched.filter(s => {
+        if (fKelas !== "ALL" && s.kelas !== fKelas) return false;
+        if (fStatus === "LULUS_SEMUA" && s.passCount !== 4) return false;
+        if (fStatus === "ADA_GAGAL" && s.passCount === 4) return false;
+        if (fStatus === "GAGAL_SEMUA" && s.passCount !== 0) return false;
+        if (fSearch && !s.nama.toUpperCase().includes(fSearch) && !s.kp.includes(fSearch)) return false;
+        return true;
+      });
+
+      const n = filtered.length;
+      const sumStat = (key, passKey) => {
+        if (n === 0) return { pct: "0.0", avg: "0.0", cnt: 0 };
+        const cnt = filtered.filter(s => s[passKey]).length;
+        const tot = filtered.reduce((acc, s) => acc + s[key], 0);
+        return {
+          cnt,
+          pct: ((cnt / n) * 100).toFixed(1),
+          avg: (tot / n).toFixed(1)
+        };
+      };
+
+      const stBM = sumStat("bm", "passBM");
+      const stBI = sumStat("bi", "passBI");
+      const stMT = sumStat("mt", "passMT");
+      const stSN = sumStat("sn", "passSN");
+      const lulus4M = filtered.filter(s => s.passCount === 4).length;
+      const pct4M = n > 0 ? ((lulus4M / n) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("kpi-mpt4-total").textContent = n;
+      document.getElementById("kpi-mpt4-lulus-all").textContent = `Lulus Semua: ${lulus4M}`;
+      document.getElementById("kpi-mpt4-bm").textContent = stBM.pct + "%";
+      document.getElementById("kpi-mpt4-bm-sub").textContent = `Purata: ${stBM.avg}% (${stBM.cnt}/${n})`;
+      document.getElementById("kpi-mpt4-bi").textContent = stBI.pct + "%";
+      document.getElementById("kpi-mpt4-bi-sub").textContent = `Purata: ${stBI.avg}% (${stBI.cnt}/${n})`;
+      document.getElementById("kpi-mpt4-mt").textContent = stMT.pct + "%";
+      document.getElementById("kpi-mpt4-mt-sub").textContent = `Purata: ${stMT.avg}% (${stMT.cnt}/${n})`;
+      document.getElementById("kpi-mpt4-sn").textContent = stSN.pct + "%";
+      document.getElementById("kpi-mpt4-sn-sub").textContent = `Purata: ${stSN.avg}% (${stSN.cnt}/${n})`;
+      document.getElementById("kpi-mpt4-4m-pct").textContent = pct4M + "%";
+      document.getElementById("kpi-mpt4-4m-cnt").textContent = `${lulus4M} / ${n} Murid`;
+
+      // Class Comparison Charts (4 Bestari vs 4 Cemerlang)
+      const calcClass = (cls) => {
+        const arr = enriched.filter(s => s.kelas === cls);
+        const len = arr.length;
+        return {
+          lulus: [
+            +(arr.filter(s => s.passBM).length / len * 100).toFixed(1),
+            +(arr.filter(s => s.passBI).length / len * 100).toFixed(1),
+            +(arr.filter(s => s.passMT).length / len * 100).toFixed(1),
+            +(arr.filter(s => s.passSN).length / len * 100).toFixed(1)
+          ],
+          min: [
+            +(arr.reduce((a, b) => a + b.bm, 0) / len).toFixed(1),
+            +(arr.reduce((a, b) => a + b.bi, 0) / len).toFixed(1),
+            +(arr.reduce((a, b) => a + b.mt, 0) / len).toFixed(1),
+            +(arr.reduce((a, b) => a + b.sn, 0) / len).toFixed(1)
+          ]
+        };
+      };
+      const c4B = calcClass("4 BESTARI");
+      const c4C = calcClass("4 CEMERLANG");
+
+      if (charts.mpt4Lulus) charts.mpt4Lulus.destroy();
+      charts.mpt4Lulus = new Chart(document.getElementById("chart-mpt4-lulus"), {
+        type: "bar",
+        data: {
+          labels: ["Bahasa Melayu", "Bahasa Inggeris", "Matematik", "Sains"],
+          datasets: [
+            { label: "4 Bestari (% Lulus)", data: c4B.lulus, backgroundColor: "#1e3a8a", borderRadius: 6 },
+            { label: "4 Cemerlang (% Lulus)", data: c4C.lulus, backgroundColor: "#0ea5e9", borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + "%" } }
+          }
+        }
+      });
+
+      if (charts.mpt4Min) charts.mpt4Min.destroy();
+      charts.mpt4Min = new Chart(document.getElementById("chart-mpt4-min"), {
+        type: "bar",
+        data: {
+          labels: ["Bahasa Melayu", "Bahasa Inggeris", "Matematik", "Sains"],
+          datasets: [
+            { label: "4 Bestari (Purata %)", data: c4B.min, backgroundColor: "#059669", borderRadius: 6 },
+            { label: "4 Cemerlang (Purata %)", data: c4C.min, backgroundColor: "#f59e0b", borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + "%" } }
+          }
+        }
+      });
+
+      // Render MPT4 Table
+      const markCell = (val, pass) => `
+        <span class="font-bold ${pass ? 'text-slate-900' : 'text-rose-700'}">${val}%</span>
+        <span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${pass ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+          ${pass ? 'LULUS' : 'GAGAL'}
+        </span>
+      `;
+
+      document.getElementById("mpt4-count-badge").textContent = `${filtered.length} Murid`;
+      document.getElementById("tbody-mpt4").innerHTML = filtered.map((s, idx) => {
+        const statusBadge = s.passCount === 4
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white">LULUS 4/4</span>`
+          : s.passCount === 0
+            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white">GAGAL 4/4</span>`
+            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">LULUS ${s.passCount}/4</span>`;
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2.5 px-3 text-slate-500 font-medium">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-700 whitespace-nowrap">${s.kelas}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">${s.nama}</td>
+            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${s.kp}</td>
+            <td class="py-2.5 px-2.5 text-center whitespace-nowrap">${markCell(s.bm, s.passBM)}</td>
+            <td class="py-2.5 px-2.5 text-center whitespace-nowrap">${markCell(s.bi, s.passBI)}</td>
+            <td class="py-2.5 px-2.5 text-center whitespace-nowrap">${markCell(s.mt, s.passMT)}</td>
+            <td class="py-2.5 px-2.5 text-center whitespace-nowrap">${markCell(s.sn, s.passSN)}</td>
+            <td class="py-2.5 px-2.5 text-center font-bold text-blue-900">${s.avg}%</td>
+            <td class="py-2.5 px-3 text-center whitespace-nowrap">${statusBadge}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // ---------------------------------------------------------
+    // CSV EXPORT FUNCTION
+    // ---------------------------------------------------------
+    function exportCurrentCSV() {
+      let csv = "";
+      let filename = "analisis_sk_sungai_lada_2026.csv";
+
+      if (currentTab === "pbd-akhir") {
+        filename = "PBD_Akhir_Tahun_2026_SK_Sungai_Lada.csv";
+        csv = "Subjek,Tahun,TP1,TP2,Jumlah_TP1_TP2,Peratus_TP1_TP2,TP3,TP4,TP5,TP6,Peratus_MTM,Jumlah\n";
+        pbdAkhirData.forEach(r => {
+          const s12 = r.tp1 + r.tp2;
+          const p12 = ((s12 / r.jumlah) * 100).toFixed(2);
+          const pMtm = (((r.tp3 + r.tp4 + r.tp5 + r.tp6) / r.jumlah) * 100).toFixed(2);
+          csv += `"${r.subjek}","${r.tahun}",${r.tp1},${r.tp2},${s12},${p12}%,${r.tp3},${r.tp4},${r.tp5},${r.tp6},${pMtm}%,${r.jumlah}\n`;
+        });
+      } else if (currentTab === "pbd-tengah") {
+        filename = "PBD_Pertengahan_Tahun_2026_SK_Sungai_Lada.csv";
+        csv = "Subjek,Tahun,TP1,TP2,Jumlah_TP1_TP2,Peratus_TP1_TP2,TP3,TP4,TP5,TP6,Peratus_MTM,Jumlah\n";
+        pbdTengahData.forEach(r => {
+          const s12 = r.tp1 + r.tp2;
+          const p12 = ((s12 / r.jumlah) * 100).toFixed(2);
+          const pMtm = (((r.tp3 + r.tp4 + r.tp5 + r.tp6) / r.jumlah) * 100).toFixed(2);
+          csv += `"${r.subjek}","${r.tahun}",${r.tp1},${r.tp2},${s12},${p12}%,${r.tp3},${r.tp4},${r.tp5},${r.tp6},${pMtm}%,${r.jumlah}\n`;
+        });
+      } else if (currentTab === "uasa") {
+        filename = "UASA_2026_Gabungan_Tahap1_Tahap2_SK_Sungai_Lada.csv";
+        csv = "Subjek,Tahap,Tahun,A,B,C,D,E,F,TD (Tidak Ditaksir),Jumlah\n";
+        uasaCombinedSummary.forEach(r => {
+          csv += `"${r.subjek}","${r.tahap}","${r.tahun}",${r.a},${r.b},${r.c},${r.d},${r.e},${r.f},${r.td},${r.jumlah}\n`;
+        });
+      } else if (currentTab === "mpt4") {
+        filename = "MPT4_2026_SK_Sungai_Lada.csv";
+        csv = "Kelas,Bil,Nama_Murid,No_KP,BM,BI,Matematik,Sains\n";
+        mpt4Raw.forEach(r => {
+          csv += `"${r[0]}",${r[1]},"${r[2]}","${r[3]}",${r[4]},${r[5]},${r[6]},${r[7]}\n`;
+        });
+      }
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      const toast = document.getElementById("toast-box");
+      document.getElementById("toast-msg").textContent = `Fail ${filename} berjaya dimuat turun!`;
+      toast.classList.remove("hidden");
+      toast.classList.add("flex");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+        toast.classList.remove("flex");
+      }, 3200);
+    }
+
+    // Initialize Dashboard on Window Load
+    window.onload = function () {
+      lucide.createIcons();
+      initDropdowns();
+      renderPBDAkhir();
+    };
+  </script>
+</body>
+</html>
